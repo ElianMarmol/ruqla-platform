@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree, Outfit, Geist } from "next/font/google";
-import Navbar from "@/components/features/Navbar";
-import CartDrawer from "@/components/features/CartDrawer";
-import { CartProvider } from "@/context/CartContext";
+import StoreChrome from "@/components/layouts/StoreChrome";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -34,13 +32,7 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", figtree.variable, outfit.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col font-body">
-        <CartProvider>
-          <Navbar />
-          <CartDrawer />
-          <main className="flex-1">
-            {children}
-          </main>
-        </CartProvider>
+        <StoreChrome>{children}</StoreChrome>
       </body>
 
     </html>

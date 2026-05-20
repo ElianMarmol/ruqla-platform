@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { toast } from 'sonner';
 import { Product } from '@/types';
 
 export type CartItem = {
@@ -63,7 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity }];
     });
-    openCart(); // Abrimos el carrito al añadir
+    toast.success('Producto agregado al carrito.');
   };
 
   const removeFromCart = (productId: string) => {

@@ -16,7 +16,7 @@ export default function CatalogView() {
 
   // Extraer parámetros actuales de la URL
   const currentSearch = searchParams.get('search') || '';
-  const currentCategory = searchParams.get('category_id') || '';
+  const currentCategory = searchParams.get('category') || searchParams.get('category_id') || '';
 
   // 1. Cargar las categorías base directamente para armar los filtros
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function CatalogView() {
       try {
         const query = new URLSearchParams();
         if (currentSearch) query.set('search', currentSearch);
-        if (currentCategory) query.set('category_id', currentCategory);
+        if (currentCategory) query.set('category', currentCategory);
         // Incluimos include_empty_stock=true para que se vean y probar el badge de Agotado
         query.set('include_empty_stock', 'true');
 
@@ -58,10 +58,10 @@ export default function CatalogView() {
     const params = new URLSearchParams(searchParams.toString());
     
     // Si clickeamos la que ya está activa, la quitamos (toggle)
-    if (categoryId === currentCategory) {
-      params.delete('category_id');
-    } else {
-      params.set('category_id', categoryId);
+    params.delete('category');
+    params.delete('category_id');
+    if (categoryId && categoryId !== currentCategory) {
+      params.set('category', categoryId);
     }
     
     // Mantenemos la búsqueda de texto si existía, solo cambiamos la categoría
@@ -89,7 +89,7 @@ export default function CatalogView() {
               return (
                 <li key={cat.id}>
                   <button 
-                    onClick={() => handleCategoryClick(cat.id)}
+                    onClick={() => handleCategoryClick(cat.slug || cat.id)}
                     className={`text-left w-full transition-colors flex items-center justify-between group ${isActive ? 'text-brand-green font-bold' : 'text-gray-400 hover:text-brand-white'}`}
                   >
                     <span className="truncate pr-2">{cat.name}</span>

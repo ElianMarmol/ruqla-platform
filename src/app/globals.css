@@ -112,3 +112,52 @@
     @apply font-sans;
   }
 }
+
+/* Global scrollbar — dark mode */
+:root,
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #27272a #09090b; /* thumb zinc-800 · track zinc-950 */
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #09090b; /* zinc-950 */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #27272a; /* zinc-800 */
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #3f3f46; /* zinc-700 */
+}
+
+@keyframes partner-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-partner-marquee {
+  animation: partner-marquee 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-partner-marquee {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+}

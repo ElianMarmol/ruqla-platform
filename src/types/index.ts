@@ -14,18 +14,21 @@ export interface Database {
           id: string
           name: string
           slug: string
-          created_at: string
+          order_index?: number
+          created_at?: string
         }
         Insert: {
           id?: string
           name: string
           slug: string
+          order_index?: number
           created_at?: string
         }
         Update: {
           id?: string
           name?: string
           slug?: string
+          order_index?: number
           created_at?: string
         }
       }
@@ -35,9 +38,11 @@ export interface Database {
           name: string
           description: string | null
           price: number
+          original_price?: number | null
           stock: number
           images: string[]
           category_id: string | null
+          is_featured: boolean
           specs: Json
           created_at: string
         }
@@ -46,9 +51,11 @@ export interface Database {
           name: string
           description?: string | null
           price: number
+          original_price?: number | null
           stock: number
           images?: string[]
           category_id?: string | null
+          is_featured?: boolean
           specs?: Json
           created_at?: string
         }
@@ -57,10 +64,47 @@ export interface Database {
           name?: string
           description?: string | null
           price?: number
+          original_price?: number | null
           stock?: number
           images?: string[]
           category_id?: string | null
+          is_featured?: boolean
           specs?: Json
+          created_at?: string
+        }
+      }
+      promo_banners: {
+        Row: {
+          id: string
+          title: string
+          subtitle: string | null
+          image_url: string
+          link_url: string | null
+          size: string
+          is_active: boolean
+          order_index: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          subtitle?: string | null
+          image_url: string
+          link_url?: string | null
+          size: string
+          is_active?: boolean
+          order_index?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          subtitle?: string | null
+          image_url?: string
+          link_url?: string | null
+          size?: string
+          is_active?: boolean
+          order_index?: number
           created_at?: string
         }
       }
@@ -169,4 +213,5 @@ export type Category = Database['public']['Tables']['categories']['Row']
 export type Product = Database['public']['Tables']['products']['Row']
 export type Order = Database['public']['Tables']['orders']['Row']
 export type MainBanner = Database['public']['Tables']['main_banners']['Row']
+export type PromoBanner = Database['public']['Tables']['promo_banners']['Row']
 export type PartnerBrand = Database['public']['Tables']['partner_brands']['Row']

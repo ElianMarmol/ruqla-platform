@@ -25,17 +25,15 @@ export default function HeroCarousel({ banners }: { banners: MainBanner[] }) {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[60vh] md:h-[75vh] flex items-center overflow-hidden">
-                {/* Background Image */}
-                <div 
+              <div className="relative w-full h-[500px] md:h-[600px] flex items-center overflow-hidden">
+                <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
                   style={{ backgroundImage: `url(${banner.image_url})` }}
                 />
-                
-                {/* Dark Overlay for Readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10" />
 
-                {/* Content */}
+                <div className="absolute inset-0 bg-black/40 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent z-10" />
+
                 <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full flex flex-col justify-center h-full">
                   <div className="max-w-2xl space-y-6">
                     <h1 className="text-5xl md:text-7xl font-sans font-extrabold text-foreground leading-[1.1] tracking-tighter drop-shadow-2xl">

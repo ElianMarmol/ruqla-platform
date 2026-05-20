@@ -4,15 +4,17 @@ import { supabase } from '@/lib/supabase';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const category_id = searchParams.get('category_id');
+    const categoryParam = searchParams.get('category') || searchParams.get('category_id');
     const search = searchParams.get('search');
     const include_empty_stock = searchParams.get('include_empty_stock') !== 'false'; // Por defecto muestra todo
 
-    // Verificamos si category_id es un UUID válido
-    const isUUID = category_id ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_id) : false;
+    // Verificamos si categoryParam es un UUID válido
+    const isUUID = categoryParam
+      ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryParam)
+      : false;
 
     // Construimos la consulta base. Si filtramos por slug, necesitamos !inner join
-    const selectQuery = (category_id && !isUUID) 
+    const selectQuery = (categoryParam && !isUUID) 
       ? `*, categories!inner(id, name, slug)`
       : `*, categories(id, name, slug)`;
 
@@ -26,11 +28,11 @@ export async function GET(request: Request) {
     }
 
     // Aplicar filtro por categoría si existe
-    if (category_id) {
+    if (categoryParam) {
       if (isUUID) {
-        query = query.eq('category_id', category_id);
+        query = query.eq('category_id', categoryParam);
       } else {
-        query = query.eq('categories.slug', category_id);
+        query = query.eq('categories.slug', categoryParam);
       }
     }
 

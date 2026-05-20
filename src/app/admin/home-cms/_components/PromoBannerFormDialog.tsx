@@ -1,0 +1,301 @@
+'use client';
+
+import { useEffect, useState, useTransition } from 'react';
+import { LoaderCircle, UploadCloud } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { PromoBanner } from '@/types';
+
+import {
+  createPromoBannerAction,
+  updatePromoBannerAction,
+} from '../actions';
+
+const SIZE_OPTIONS = [
+  { value: 'full', label: 'Ancho Completo' },
+  { value: 'half', label: 'Mitad de Pantalla' },
+] as const;
+
+type PromoBannerFormDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  banner: PromoBanner | null;
+  onSuccess?: (wasEdit: boolean) => void;
+};
+
+export default function PromoBannerFormDialog({
+  open,
+  onOpenChange,
+  banner,
+  onSuccess,
+}: PromoBannerFormDialogProps) {
+  const isEditing = Boolean(banner);
+  const existingImage = banner?.image_url ?? null;
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fileName, setFileName] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (open) {
+      setErrorMsg(null);
+      setFileName('');
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+    }
+  }, [open, banner]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setFileName('');
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
+
+    setFileName(file.name);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const displayPreview = previewUrl ?? (isEditing ? existingImage : null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    if (isEditing && banner) {
+      formData.set('banner_id', banner.id);
+      const file = formData.get('image');
+      if (!(file instanceof File) || file.size === 0) {
+        formData.set('keep_existing_image', 'true');
+      }
+    }
+
+    startTransition(async () => {
+      try {
+        if (isEditing) {
+          await updatePromoBannerAction(formData);
+        } else {
+          await createPromoBannerAction(formData);
+        }
+        onOpenChange(false);
+        onSuccess?.(isEditing);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'No se pudo guardar el banner.';
+        setErrorMsg(message);
+        toast.error(message);
+      }
+    });
+  };
+
+  const labelClass =
+    'text-xs font-semibold uppercase tracking-wider text-muted-foreground';
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-border/60">
+        <DialogHeader className="text-left border-b border-border/60 pb-4">
+          <DialogTitle className="font-sans">
+            {isEditing ? 'Editar promo banner' : 'Nuevo promo banner'}
+          </DialogTitle>
+          <DialogDescription className="font-body">
+            Banners promocionales de la portada con tamaño ancho completo o mitad.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2 sm:col-span-2">
+              <label htmlFor="promo-title" className={labelClass}>
+                Título
+              </label>
+              <Input
+                id="promo-title"
+                name="title"
+                required
+                defaultValue={banner?.title ?? ''}
+                disabled={isPending}
+                className="py-5"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label htmlFor="promo-subtitle" className={labelClass}>
+                Subtítulo
+              </label>
+              <Input
+                id="promo-subtitle"
+                name="subtitle"
+                defaultValue={banner?.subtitle ?? ''}
+                disabled={isPending}
+                className="py-5"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label htmlFor="promo-link" className={labelClass}>
+                Link URL
+              </label>
+              <Input
+                id="promo-link"
+                name="link_url"
+                type="url"
+                defaultValue={banner?.link_url ?? ''}
+                disabled={isPending}
+                className="py-5"
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label htmlFor="promo-size" className={labelClass}>
+                Tamaño
+              </label>
+              <Select
+                key={banner?.id ?? 'new-promo'}
+                name="size"
+                defaultValue={banner?.size ?? 'full'}
+                disabled={isPending}
+                items={Object.fromEntries(
+                  SIZE_OPTIONS.map((o) => [o.value, o.label])
+                )}
+              >
+                <SelectTrigger
+                  id="promo-size"
+                  className="w-full h-10 data-[size=default]:h-10"
+                >
+                  <SelectValue placeholder="Elegí un tamaño" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 text-foreground border-border/60">
+                  {SIZE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <span id="promo-image-label" className={labelClass}>
+                Imagen
+              </span>
+              <input
+                id="promo-image"
+                name="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                disabled={isPending}
+                className="hidden"
+                onChange={handleImageChange}
+                aria-labelledby="promo-image-label"
+                required={!isEditing}
+              />
+              <label
+                htmlFor="promo-image"
+                className={cn(
+                  'flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border/80 bg-zinc-900/50 p-6 text-center transition-colors',
+                  'hover:border-primary/40 hover:bg-zinc-900',
+                  'focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/50',
+                  isPending && 'pointer-events-none opacity-50'
+                )}
+              >
+                {displayPreview ? (
+                  <div className="relative overflow-hidden rounded-lg border border-border/60 bg-[#0a0a0a] p-2 shadow-inner">
+                    <img
+                      src={displayPreview}
+                      alt={fileName || banner?.title || 'Vista previa'}
+                      className="h-28 w-full max-w-sm object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
+                    <UploadCloud className="size-8 text-primary" strokeWidth={1.5} />
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-foreground font-body">
+                    {fileName || 'Haz clic para subir imagen'}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-body">
+                    JPG, PNG, WebP o GIF · máx. 5 MB
+                  </p>
+                </div>
+              </label>
+              {isEditing && existingImage && !fileName && (
+                <p className="text-xs text-muted-foreground font-body">
+                  Imagen actual. Si no subís otra, se mantiene al guardar.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {errorMsg && (
+            <p className="text-sm font-body font-bold text-destructive" role="alert">
+              {errorMsg}
+            </p>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={isPending}
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" className="flex-1 font-bold" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <LoaderCircle className="animate-spin" />
+                  Guardando…
+                </>
+              ) : isEditing ? (
+                'Guardar cambios'
+              ) : (
+                'Crear banner'
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
