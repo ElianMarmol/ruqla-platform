@@ -53,18 +53,48 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const closeCart = () => setIsCartOpen(false);
 
   const addToCart = (product: Product, quantity: number = 1) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.product.id === product.id);
+    const maxStock = Math.max(0, Number(product.stock) || 0);
+
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id);
+
       if (existing) {
-        return prev.map(item => 
-          item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + quantity }
+        const desiredQty = existing.quantity + quantity;
+        const newQty = Math.min(desiredQty, maxStock);
+
+        if (newQty <= existing.quantity) {
+          toast.warning('No hay más stock disponible');
+          return prev;
+        }
+
+        if (newQty < desiredQty) {
+          toast.warning('No hay más stock disponible');
+        } else {
+          toast.success('Producto agregado al carrito.');
+        }
+
+        return prev.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: newQty }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+
+      if (maxStock === 0) {
+        toast.warning('No hay más stock disponible');
+        return prev;
+      }
+
+      const initialQty = Math.min(quantity, maxStock);
+
+      if (initialQty < quantity) {
+        toast.warning('No hay más stock disponible');
+      } else {
+        toast.success('Producto agregado al carrito.');
+      }
+
+      return [...prev, { product, quantity: initialQty }];
     });
-    toast.success('Producto agregado al carrito.');
   };
 
   const removeFromCart = (productId: string) => {
@@ -72,12 +102,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    setCartItems(prev => prev.map(item => {
-      if (item.product.id === productId) {
-        return { ...item, quantity: Math.max(1, quantity) }; // Previene que baje de 1
-      }
-      return item;
-    }));
+    setCartItems((prev) =>
+      prev.map((item) => {
+        if (item.product.id === productId) {
+          const maxStock = Math.max(0, Number(item.product.stock) || 0);
+          const newQty = Math.max(1, Math.min(quantity, maxStock));
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      })
+    );
   };
 
   const clearCart = () => {

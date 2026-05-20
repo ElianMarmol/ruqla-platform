@@ -41,6 +41,29 @@ export const generateWhatsAppLink = (cartItems: CartItem[], customerData: Custom
 
   const message = lines.join('\n');
   const encodedMessage = encodeURIComponent(message);
+  const digitsOnly = phoneNumber.replace(/\D/g, '');
 
-  return `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+  // wa.me abre la app nativa con más confiabilidad en móviles que api.whatsapp.com
+  return `https://wa.me/${digitsOnly}?text=${encodedMessage}`;
 };
+
+/** Abre WhatsApp. En móvil usa navegación directa (evita bloqueo de popups tras fetch async). */
+export function openWhatsAppLink(url: string): void {
+  if (typeof window === 'undefined') return;
+
+  const isMobile =
+    window.matchMedia('(max-width: 768px)').matches ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
+      navigator.userAgent
+    );
+
+  if (isMobile) {
+    window.location.assign(url);
+    return;
+  }
+
+  const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!newWindow) {
+    window.location.assign(url);
+  }
+}

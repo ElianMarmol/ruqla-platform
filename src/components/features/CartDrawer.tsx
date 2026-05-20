@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
-import { generateWhatsAppLink } from '@/services/whatsapp';
+import { generateWhatsAppLink, openWhatsAppLink } from '@/services/whatsapp';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -61,8 +61,11 @@ export default function CartDrawer() {
       }
 
       // 4. Éxito: Generar link de WhatsApp y finalizar
-      const waLink = generateWhatsAppLink(cartItems, { name: trimmedName, phone: trimmedPhone });
-      window.open(waLink, '_blank');
+      const waLink = generateWhatsAppLink(cartItems, {
+        name: trimmedName,
+        phone: trimmedPhone,
+      });
+      openWhatsAppLink(waLink);
       
       // Solo limpiamos si el registro en DB fue exitoso
       clearCart();
@@ -131,9 +134,13 @@ export default function CartDrawer() {
                           -
                         </button>
                         <span className="font-body text-sm px-2 min-w-[28px] text-center font-semibold text-foreground">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="px-3 py-1 text-muted-foreground hover:text-foreground font-bold"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(item.product.id, item.quantity + 1)
+                          }
+                          disabled={item.quantity >= item.product.stock}
+                          className="px-3 py-1 text-muted-foreground hover:text-foreground font-bold disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed"
                         >
                           +
                         </button>
