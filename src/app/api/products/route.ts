@@ -1,33 +1,36 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+
+import { createPublicSupabase } from '@/lib/supabase-public';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const supabase = createPublicSupabase();
     const { searchParams } = new URL(request.url);
-    const categoryParam = searchParams.get('category') || searchParams.get('category_id');
+    const categoryParam =
+      searchParams.get('category') || searchParams.get('category_id');
     const search = searchParams.get('search');
-    const include_empty_stock = searchParams.get('include_empty_stock') !== 'false'; // Por defecto muestra todo
+    const include_empty_stock =
+      searchParams.get('include_empty_stock') !== 'false';
 
-    // Verificamos si categoryParam es un UUID válido
     const isUUID = categoryParam
-      ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryParam)
+      ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          categoryParam
+        )
       : false;
 
-    // Construimos la consulta base. Si filtramos por slug, necesitamos !inner join
-    const selectQuery = (categoryParam && !isUUID) 
-      ? `*, categories!inner(id, name, slug)`
-      : `*, categories(id, name, slug)`;
+    const selectQuery =
+      categoryParam && !isUUID
+        ? '*, categories!inner(id, name, slug)'
+        : '*, categories(id, name, slug)';
 
-    let query = supabase
-      .from('products')
-      .select(selectQuery);
+    let query = supabase.from('products').select(selectQuery);
 
-    // Modificamos el filtro de stock para que sea condicional
     if (!include_empty_stock) {
       query = query.gt('stock', 0);
     }
 
-    // Aplicar filtro por categoría si existe
     if (categoryParam) {
       if (isUUID) {
         query = query.eq('category_id', categoryParam);
@@ -36,29 +39,27 @@ export async function GET(request: Request) {
       }
     }
 
-    // Aplicar filtro de búsqueda por texto usando ilike (aprovecha índice GIN trigram)
     if (search) {
       query = query.ilike('name', `%${search}%`);
     }
 
-    // Ordenar por los más recientes y limitar para evitar sobrecarga de datos
-    query = query
+    const { data: products, error } = await query
       .order('created_at', { ascending: false })
-      .range(0, 49); // Retorna los primeros 50 productos (Paginación básica)
-
-    const { data: products, error } = await query;
+      .range(0, 49);
 
     if (error) {
-      console.error('Supabase query error:', error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error('[api/products] Supabase error:', error);
+      return NextResponse.json(
+        { error: error.message, details: error.details, hint: error.hint },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ data: products }, { status: 200 });
-  } catch (error: any) {
-    console.error('Unhandled error in products API:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ data: products ?? [] }, { status: 200 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Error interno del servidor';
+    console.error('[api/products] Unhandled error:', error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

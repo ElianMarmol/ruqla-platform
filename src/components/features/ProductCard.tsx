@@ -99,14 +99,14 @@ export default function ProductCard({ product }: ProductProps) {
         )}
       </CardHeader>
 
-      <CardFooter className="p-5 pt-4 mt-auto flex items-end justify-between gap-3 border-t border-border/30 bg-[#0a0a0a]/50">
-        <div className="flex flex-col min-w-0">
+      <CardFooter className="p-4 pt-3 mt-auto flex flex-col gap-2.5 border-t border-border/30 bg-[#0a0a0a]/50">
+        <div className="flex min-w-0 w-full flex-col">
           {hasDiscount && (
-            <span className="text-sm font-body text-muted-foreground line-through leading-none mb-1">
+            <span className="text-[11px] sm:text-xs font-body text-muted-foreground line-through leading-none mb-0.5 tabular-nums">
               {currencyFormatter.format(originalPrice!)}
             </span>
           )}
-          <span className="font-sans font-extrabold text-2xl text-foreground leading-tight">
+          <span className="font-sans font-extrabold text-base sm:text-lg text-foreground leading-none tabular-nums tracking-tight">
             {currencyFormatter.format(currentPrice)}
           </span>
         </div>
@@ -114,8 +114,9 @@ export default function ProductCard({ product }: ProductProps) {
         <Button
           disabled={isOutOfStock}
           onClick={() => addToCart(product)}
+          size="sm"
           className={`
-            rounded-full font-bold transition-all duration-300 flex items-center gap-2 shrink-0
+            w-full h-9 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center gap-1.5 shrink-0
             ${!isOutOfStock && 'hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_15px_rgba(159,192,48,0.4)] active:scale-95'}
           `}
           variant={isOutOfStock ? 'secondary' : 'default'}

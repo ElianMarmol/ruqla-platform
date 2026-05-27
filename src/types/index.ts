@@ -172,6 +172,61 @@ export interface Database {
           created_at?: string
         }
       }
+      home_catalog_section: {
+        Row: {
+          id: string
+          title: string
+          subtitle: string | null
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          subtitle?: string | null
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          subtitle?: string | null
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
+      home_catalog_cards: {
+        Row: {
+          id: string
+          title: string
+          icon: string
+          category_id: string | null
+          fallback_slug: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          icon?: string
+          category_id?: string | null
+          fallback_slug?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          icon?: string
+          category_id?: string | null
+          fallback_slug?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
       partner_brands: {
         Row: {
           id: string
@@ -215,3 +270,8 @@ export type Order = Database['public']['Tables']['orders']['Row']
 export type MainBanner = Database['public']['Tables']['main_banners']['Row']
 export type PromoBanner = Database['public']['Tables']['promo_banners']['Row']
 export type PartnerBrand = Database['public']['Tables']['partner_brands']['Row']
+export type HomeCatalogSection =
+  Database['public']['Tables']['home_catalog_section']['Row']
+export type HomeCatalogCard = Database['public']['Tables']['home_catalog_cards']['Row'] & {
+  categories?: { id: string; name: string; slug: string } | null
+}

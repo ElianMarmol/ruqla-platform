@@ -13,6 +13,7 @@ export default function CatalogView() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Extraer parámetros actuales de la URL
   const currentSearch = searchParams.get('search') || '';
@@ -31,20 +32,33 @@ export default function CatalogView() {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setFetchError(null);
       try {
         const query = new URLSearchParams();
         if (currentSearch) query.set('search', currentSearch);
         if (currentCategory) query.set('category', currentCategory);
-        // Incluimos include_empty_stock=true para que se vean y probar el badge de Agotado
         query.set('include_empty_stock', 'true');
 
         const res = await fetch(`/api/products?${query.toString()}`);
-        if (!res.ok) throw new Error('Error al obtener productos');
-        
-        const json = await res.json();
+        const json = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          const apiMessage =
+            typeof json.error === 'string'
+              ? json.error
+              : 'Error al obtener productos';
+          throw new Error(apiMessage);
+        }
+
         setProducts(json.data || []);
       } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Error al obtener productos';
         console.error('Error fetching catalog products:', error);
+        setProducts([]);
+        setFetchError(message);
       } finally {
         setLoading(false);
       }
@@ -140,6 +154,22 @@ export default function CatalogView() {
                 <div className="h-10 bg-white/10 rounded-full w-full mt-4"></div>
               </div>
             ))}
+          </div>
+        ) : fetchError ? (
+          <div className="text-center py-24 bg-destructive/10 rounded-2xl border border-destructive/30 flex flex-col items-center justify-center px-6">
+            <p className="text-destructive font-sans text-xl font-bold mb-2">
+              No se pudieron cargar los productos
+            </p>
+            <p className="text-muted-foreground font-body text-sm max-w-md mx-auto mb-4">
+              {fetchError}
+            </p>
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              className="text-sm font-bold text-primary hover:underline"
+            >
+              Reintentar
+            </button>
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-24 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
