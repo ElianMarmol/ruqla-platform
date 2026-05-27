@@ -61,7 +61,8 @@ export default function CatalogCardFormDialog({
     }
   }, [open, card]);
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = (value: string | null) => {
+    if (!value) return;
     setCategoryId(value);
     const cat = categories.find((c) => c.id === value);
     if (cat) {
@@ -125,7 +126,11 @@ export default function CatalogCardFormDialog({
 
           <div className="space-y-2">
             <span className={labelClass}>Ícono</span>
-            <Select value={icon} onValueChange={setIcon} disabled={isPending}>
+            <Select
+              value={icon}
+              onValueChange={(value) => value && setIcon(value)}
+              disabled={isPending}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Elegí un ícono" />
               </SelectTrigger>

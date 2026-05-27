@@ -15,15 +15,20 @@ export async function fetchPublicHomeCatalog(): Promise<PublicHomeCatalog> {
   try {
     const supabase = createPublicSupabase();
 
-    const [{ data: section, error: sectionError }, { data: cards, error: cardsError }] =
-      await Promise.all([
-        supabase.from('home_catalog_section').select('*').maybeSingle(),
-        supabase
-          .from('home_catalog_cards')
-          .select('*, categories(id, name, slug)')
-          .eq('is_active', true)
-          .order('order_index', { ascending: true }),
-      ]);
+    const [
+      { data: sectionRow, error: sectionError },
+      { data: cardsRows, error: cardsError },
+    ] = await Promise.all([
+      supabase.from('home_catalog_section').select('*').maybeSingle(),
+      supabase
+        .from('home_catalog_cards')
+        .select('*, categories(id, name, slug)')
+        .eq('is_active', true)
+        .order('order_index', { ascending: true }),
+    ]);
+
+    const section = sectionRow as HomeCatalogSection | null;
+    const cards = cardsRows as HomeCatalogCard[] | null;
 
     if (
       isMissingSchemaError(sectionError) ||

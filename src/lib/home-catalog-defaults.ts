@@ -19,7 +19,7 @@ export const DEFAULT_HOME_CATALOG_CARDS: HomeCatalogCard[] = [
     order_index: 0,
     is_active: true,
     created_at: new Date().toISOString(),
-    categories: { slug: 'fundas' },
+    categories: { id: '', name: 'Fundas y Protectores', slug: 'fundas' },
   },
   {
     id: 'default-2',
@@ -30,7 +30,11 @@ export const DEFAULT_HOME_CATALOG_CARDS: HomeCatalogCard[] = [
     order_index: 1,
     is_active: true,
     created_at: new Date().toISOString(),
-    categories: { slug: 'cargadores-cables' },
+    categories: {
+      id: '',
+      name: 'Cargadores Rápidos',
+      slug: 'cargadores-cables',
+    },
   },
   {
     id: 'default-3',
@@ -41,6 +45,6 @@ export const DEFAULT_HOME_CATALOG_CARDS: HomeCatalogCard[] = [
     order_index: 2,
     is_active: true,
     created_at: new Date().toISOString(),
-    categories: { slug: 'componentes' },
+    categories: { id: '', name: 'Componentes PC', slug: 'componentes' },
   },
 ];
