@@ -9,10 +9,16 @@ import type {
   PartnerBrand,
   PromoBanner,
   ShopPageHeader,
+  StoreNavLink,
+  StoreSettings,
+  StoreTopBar,
+  StoreTopBarItem,
 } from '@/types';
 
 import CatalogSectionPanel from './CatalogSectionPanel';
 import ShopHeaderSettings from './ShopHeaderSettings';
+import StoreMenuPanel from './StoreMenuPanel';
+import TopBarPanel from './TopBarPanel';
 import HeroBannersPanel from './HeroBannersPanel';
 import PartnerBrandsPanel from './PartnerBrandsPanel';
 import PromoBannersPanel from './PromoBannersPanel';
@@ -27,6 +33,12 @@ type HomeCmsTabsProps = {
   catalogTablesReady: boolean;
   shopPageHeader: ShopPageHeader;
   shopHeaderTableReady: boolean;
+  topBarSection: StoreTopBar;
+  topBarItems: StoreTopBarItem[];
+  topBarTableReady: boolean;
+  storeSettings: StoreSettings;
+  navLinks: StoreNavLink[];
+  menuSettingsReady: boolean;
 };
 
 export default function HomeCmsTabs({
@@ -39,6 +51,12 @@ export default function HomeCmsTabs({
   catalogTablesReady,
   shopPageHeader,
   shopHeaderTableReady,
+  topBarSection,
+  topBarItems,
+  topBarTableReady,
+  storeSettings,
+  navLinks,
+  menuSettingsReady,
 }: HomeCmsTabsProps) {
   return (
     <Tabs defaultValue="hero" className="w-full">
@@ -46,6 +64,8 @@ export default function HomeCmsTabs({
         <TabsTrigger value="hero">Hero Banners</TabsTrigger>
         <TabsTrigger value="promo">Promo Banners</TabsTrigger>
         <TabsTrigger value="brands">Marcas</TabsTrigger>
+        <TabsTrigger value="menu">Menú y WhatsApp</TabsTrigger>
+        <TabsTrigger value="topbar">Barra superior</TabsTrigger>
         <TabsTrigger value="catalog">Accesos catálogo</TabsTrigger>
         <TabsTrigger value="shop">Encabezado tienda</TabsTrigger>
       </TabsList>
@@ -65,6 +85,27 @@ export default function HomeCmsTabs({
       <TabsContent value="brands" className="mt-6">
         <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
           <PartnerBrandsPanel brands={partnerBrands} />
+        </section>
+      </TabsContent>
+
+      <TabsContent value="menu" className="mt-6">
+        <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <StoreMenuPanel
+            settings={storeSettings}
+            navLinks={navLinks}
+            categories={categories}
+            tablesReady={menuSettingsReady}
+          />
+        </section>
+      </TabsContent>
+
+      <TabsContent value="topbar" className="mt-6">
+        <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <TopBarPanel
+            section={topBarSection}
+            items={topBarItems}
+            tablesReady={topBarTableReady}
+          />
         </section>
       </TabsContent>
 

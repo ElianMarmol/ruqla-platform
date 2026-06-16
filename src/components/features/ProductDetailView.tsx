@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingBag } from 'lucide-react';
 
 import { useCart } from '@/context/CartContext';
+import { useStoreSettings } from '@/context/StoreSettingsContext';
 import type { ProductWithCategory } from '@/lib/product-queries';
 import {
   generateProductWhatsAppLink,
@@ -31,6 +32,7 @@ export default function ProductDetailView({
   relatedProducts,
 }: ProductDetailViewProps) {
   const { addToCart } = useCart();
+  const { whatsappNumber } = useStoreSettings();
   const images = product.images?.length ? product.images : [];
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -63,7 +65,7 @@ export default function ProductDetailView({
 
   const handleWhatsApp = () => {
     if (isOutOfStock) return;
-    const url = generateProductWhatsAppLink(product, quantity);
+    const url = generateProductWhatsAppLink(product, quantity, whatsappNumber);
     openWhatsAppLink(url);
   };
 

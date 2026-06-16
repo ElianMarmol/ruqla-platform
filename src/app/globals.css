@@ -234,8 +234,4 @@ body {
     flex-shrink: 1;
     min-height: 0;
   }
-
-  .home-landing .home-newsletter {
-    flex: 0 0 auto;
-  }
 }

@@ -172,6 +172,95 @@ export interface Database {
           created_at?: string
         }
       }
+      store_settings: {
+        Row: {
+          id: string
+          whatsapp_number: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          whatsapp_number?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          whatsapp_number?: string
+          updated_at?: string
+        }
+      }
+      store_nav_links: {
+        Row: {
+          id: string
+          label: string
+          category_id: string | null
+          fallback_slug: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          category_id?: string | null
+          fallback_slug?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          category_id?: string | null
+          fallback_slug?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
+      store_top_bar: {
+        Row: {
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
+      store_top_bar_items: {
+        Row: {
+          id: string
+          label: string
+          icon: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          icon?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          icon?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
       shop_page_header: {
         Row: {
           id: string
@@ -299,6 +388,13 @@ export type Order = Database['public']['Tables']['orders']['Row']
 export type MainBanner = Database['public']['Tables']['main_banners']['Row']
 export type PromoBanner = Database['public']['Tables']['promo_banners']['Row']
 export type PartnerBrand = Database['public']['Tables']['partner_brands']['Row']
+export type StoreSettings = Database['public']['Tables']['store_settings']['Row']
+export type StoreNavLink = Database['public']['Tables']['store_nav_links']['Row'] & {
+  categories?: { id: string; name: string; slug: string } | null
+}
+export type StoreTopBar = Database['public']['Tables']['store_top_bar']['Row']
+export type StoreTopBarItem =
+  Database['public']['Tables']['store_top_bar_items']['Row']
 export type ShopPageHeader =
   Database['public']['Tables']['shop_page_header']['Row']
 export type HomeCatalogSection =

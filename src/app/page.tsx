@@ -2,7 +2,6 @@ import { supabase } from '@/lib/supabase';
 import HeroCarousel from '@/components/features/HeroCarousel';
 import SetupCategoriesSection from '@/components/features/SetupCategoriesSection';
 import TrustFeaturesBar from '@/components/features/TrustFeaturesBar';
-import NewsletterSection from '@/components/features/NewsletterSection';
 import { fetchPublicHomeCatalog } from '@/lib/home-catalog-queries';
 
 export const revalidate = 60;
@@ -28,8 +27,6 @@ export default async function HomePage() {
       />
 
       <TrustFeaturesBar compact />
-
-      <NewsletterSection compact />
     </div>
   );
 }

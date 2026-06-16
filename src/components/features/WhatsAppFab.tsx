@@ -1,12 +1,17 @@
+'use client';
+
 import Link from 'next/link';
 
-const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, '') || '5491100000000';
+import { useStoreSettings } from '@/context/StoreSettingsContext';
+import { normalizePhoneNumber } from '@/lib/phone';
 
 export default function WhatsAppFab() {
+  const { whatsappNumber } = useStoreSettings();
+  const digits = normalizePhoneNumber(whatsappNumber);
+
   return (
     <Link
-      href={`https://wa.me/${WHATSAPP_NUMBER}`}
+      href={`https://wa.me/${digits}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg hover:scale-105 transition-transform"

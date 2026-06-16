@@ -11,8 +11,14 @@ import {
   fetchPartnerBrands,
   fetchPromoBanners,
   fetchShopPageHeader,
+  fetchStoreNavLinks,
+  fetchStoreSettings,
+  fetchStoreTopBarItems,
+  fetchStoreTopBarSection,
   homeCatalogTablesExist,
   shopPageHeaderTableExists,
+  storeSettingsTablesExist,
+  storeTopBarTablesExist,
 } from './lib/queries';
 
 export const metadata = {
@@ -32,6 +38,10 @@ export default async function HomeCmsPage() {
       catalogTablesReady,
       shopHeaderTableReady,
       shopPageHeader,
+      topBarTableReady,
+      topBarSection,
+      storeSettings,
+      menuSettingsReady,
     ] = await Promise.all([
       fetchMainBanners(),
       fetchPromoBanners(),
@@ -40,12 +50,19 @@ export default async function HomeCmsPage() {
       homeCatalogTablesExist(),
       shopPageHeaderTableExists(),
       fetchShopPageHeader(),
+      storeTopBarTablesExist(),
+      fetchStoreTopBarSection(),
+      fetchStoreSettings(),
+      storeSettingsTablesExist(),
     ]);
 
-    const [catalogSection, catalogCards] = await Promise.all([
-      fetchHomeCatalogSection(),
-      fetchHomeCatalogCards(),
-    ]);
+    const [catalogSection, catalogCards, topBarItems, navLinks] =
+      await Promise.all([
+        fetchHomeCatalogSection(),
+        fetchHomeCatalogCards(),
+        fetchStoreTopBarItems(),
+        fetchStoreNavLinks(),
+      ]);
 
     return (
       <main className="min-h-screen bg-background text-foreground">
@@ -61,8 +78,8 @@ export default async function HomeCmsPage() {
                   CMS Portada
                 </h1>
                 <p className="text-muted-foreground font-body mt-2 max-w-2xl">
-                  Gestioná el carrusel Hero, banners promocionales, marcas, accesos al
-                  catálogo y el encabezado de la tienda.
+                  Gestioná el carrusel Hero, banners, marcas, accesos al catálogo,
+                  barra superior, menú, WhatsApp y encabezado de la tienda.
                 </p>
               </div>
             </div>
@@ -78,6 +95,12 @@ export default async function HomeCmsPage() {
             catalogTablesReady={catalogTablesReady}
             shopPageHeader={shopPageHeader}
             shopHeaderTableReady={shopHeaderTableReady}
+            topBarSection={topBarSection}
+            topBarItems={topBarItems}
+            topBarTableReady={topBarTableReady}
+            storeSettings={storeSettings}
+            navLinks={navLinks}
+            menuSettingsReady={menuSettingsReady}
           />
         </div>
       </main>

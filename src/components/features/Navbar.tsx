@@ -5,30 +5,25 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Search, ShoppingCart, User } from 'lucide-react';
 
-import StoreTopBar from '@/components/features/StoreTopBar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import {
-  type CategoryNavKey,
-  type CategoryRef,
-  CATEGORY_NAV_KEYS,
-  findCategoryForNavKey,
-  getCategoryHref,
-  isSameCategory,
-} from '@/lib/category-resolve';
+  getNavLinkCategorySlug,
+  getNavLinkHref,
+  type StoreNavLinkWithCategory,
+} from '@/lib/nav-link-resolve';
+import { isSameCategory, type CategoryRef } from '@/lib/category-resolve';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 
-const CATEGORY_NAV: { key: CategoryNavKey; label: string }[] = [
-  { key: 'cargadores', label: 'CARGADORES' },
-  { key: 'fundas', label: 'FUNDAS' },
-  { key: 'auriculares', label: 'AURICULARES' },
-  { key: 'ofertas', label: 'OFERTAS' },
-];
+type NavbarProps = {
+  topBar?: React.ReactNode;
+  navLinks?: StoreNavLinkWithCategory[];
+};
 
-export default function Navbar() {
+export default function Navbar({ topBar, navLinks = [] }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<CategoryRef[]>([]);
   const router = useRouter();
@@ -55,34 +50,18 @@ export default function Navbar() {
     }
   };
 
-  const categoryLinks = CATEGORY_NAV.map(({ key, label }) => ({
-    key,
-    label,
-    href:
-      categories.length > 0
-        ? getCategoryHref(key, categories)
-        : `/productos?category=${encodeURIComponent(CATEGORY_NAV_KEYS[key][0])}`,
-  }));
-
-  const isCategoryLinkActive = (
-    navKey: CategoryNavKey,
-    href: string
-  ) => {
+  const isNavLinkActive = (link: StoreNavLinkWithCategory) => {
     if (pathname !== '/productos' && pathname !== '/catalog') return false;
     if (!urlCategory) return false;
 
-    const param = href.split('category=')[1]?.split('&')[0];
-    if (!param) return navKey === 'ofertas' && !urlCategory;
+    const slug = getNavLinkCategorySlug(link);
+    if (!slug) return false;
 
-    const hrefSlug = decodeURIComponent(param);
     if (categories.length === 0) {
-      return hrefSlug === urlCategory;
+      return slug === urlCategory;
     }
 
-    const navCategory = findCategoryForNavKey(navKey, categories);
-    if (!navCategory) return hrefSlug === urlCategory;
-
-    return isSameCategory(urlCategory, navCategory.slug, categories);
+    return isSameCategory(urlCategory, slug, categories);
   };
 
   const isProductosActive =
@@ -90,7 +69,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-background shadow-sm border-b border-border">
-      <StoreTopBar />
+      {topBar}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
@@ -128,13 +107,13 @@ export default function Navbar() {
               PRODUCTOS
               <ChevronDown className="size-3.5 opacity-60" />
             </Link>
-            {categoryLinks.map((link) => (
+            {navLinks.map((link) => (
               <Link
-                key={link.key}
-                href={link.href}
+                key={link.id}
+                href={getNavLinkHref(link)}
                 className={cn(
                   'font-sans text-xs font-bold tracking-wide transition-colors',
-                  isCategoryLinkActive(link.key, link.href)
+                  isNavLinkActive(link)
                     ? 'text-primary underline underline-offset-8 decoration-2'
                     : 'text-foreground hover:text-primary'
                 )}

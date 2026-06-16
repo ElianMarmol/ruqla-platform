@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Award, ShieldCheck, Tag, Truck } from 'lucide-react';
+import { Award, ShieldCheck, Truck } from 'lucide-react';
 
 import {
   Carousel,
@@ -120,18 +120,6 @@ function HeroSlide({
                 VER PRODUCTOS →
               </Link>
             )}
-            <Link
-              href="/productos"
-              className={buttonVariants({
-                variant: 'outline',
-                size: 'sm',
-                className:
-                  'rounded-full font-bold px-5 h-9 text-xs border-foreground/20 bg-white hover:bg-white',
-              })}
-            >
-              <Tag className="size-3.5" />
-              VER OFERTAS
-            </Link>
           </div>
         </div>
 

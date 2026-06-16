@@ -3,6 +3,14 @@ import {
   DEFAULT_HOME_CATALOG_SECTION,
 } from '@/lib/home-catalog-defaults';
 import { DEFAULT_SHOP_PAGE_HEADER } from '@/lib/shop-page-defaults';
+import {
+  DEFAULT_STORE_NAV_LINKS,
+  DEFAULT_STORE_SETTINGS,
+} from '@/lib/store-settings-defaults';
+import {
+  DEFAULT_STORE_TOP_BAR,
+  DEFAULT_STORE_TOP_BAR_ITEMS,
+} from '@/lib/store-top-bar-defaults';
 import { isMissingSchemaError } from '@/lib/supabase-errors';
 import { supabaseService } from '@/lib/supabase-service';
 import type {
@@ -13,6 +21,10 @@ import type {
   PartnerBrand,
   PromoBanner,
   ShopPageHeader,
+  StoreNavLink,
+  StoreSettings,
+  StoreTopBar,
+  StoreTopBarItem,
 } from '@/types';
 
 export async function fetchMainBanners(): Promise<MainBanner[]> {
@@ -99,6 +111,82 @@ export async function fetchHomeCatalogCards(): Promise<HomeCatalogCard[]> {
   }
 
   return (data ?? []) as HomeCatalogCard[];
+}
+
+export async function fetchStoreSettings(): Promise<StoreSettings> {
+  const { data, error } = await supabaseService
+    .from('store_settings')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_SETTINGS;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_SETTINGS) as StoreSettings;
+}
+
+export async function fetchStoreNavLinks(): Promise<StoreNavLink[]> {
+  const { data, error } = await supabaseService
+    .from('store_nav_links')
+    .select('*, categories(id, name, slug)')
+    .order('order_index', { ascending: true });
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_NAV_LINKS;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_NAV_LINKS) as StoreNavLink[];
+}
+
+export async function storeSettingsTablesExist(): Promise<boolean> {
+  const { error } = await supabaseService
+    .from('store_settings')
+    .select('id')
+    .limit(1);
+
+  return !error || !isMissingSchemaError(error);
+}
+
+export async function fetchStoreTopBarSection(): Promise<StoreTopBar> {
+  const { data, error } = await supabaseService
+    .from('store_top_bar')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_TOP_BAR;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_TOP_BAR) as StoreTopBar;
+}
+
+export async function fetchStoreTopBarItems(): Promise<StoreTopBarItem[]> {
+  const { data, error } = await supabaseService
+    .from('store_top_bar_items')
+    .select('*')
+    .order('order_index', { ascending: true });
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_TOP_BAR_ITEMS;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_TOP_BAR_ITEMS) as StoreTopBarItem[];
+}
+
+export async function storeTopBarTablesExist(): Promise<boolean> {
+  const { error } = await supabaseService
+    .from('store_top_bar')
+    .select('id')
+    .limit(1);
+
+  return !error || !isMissingSchemaError(error);
 }
 
 export async function fetchShopPageHeader(): Promise<ShopPageHeader> {

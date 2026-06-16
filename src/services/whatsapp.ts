@@ -1,4 +1,6 @@
 import { CartItem } from '@/context/CartContext';
+import { normalizePhoneNumber } from '@/lib/phone';
+import { DEFAULT_WHATSAPP_NUMBER } from '@/lib/store-settings-defaults';
 import type { Product } from '@/types';
 
 type CustomerData = {
@@ -6,17 +8,20 @@ type CustomerData = {
   phone: string;
 };
 
-function buildWhatsAppUrl(message: string): string {
-  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5491100000000';
+export function buildWhatsAppUrl(
+  message: string,
+  phoneNumber: string = DEFAULT_WHATSAPP_NUMBER
+): string {
+  const digitsOnly = normalizePhoneNumber(phoneNumber);
   const encodedMessage = encodeURIComponent(message);
-  const digitsOnly = phoneNumber.replace(/\D/g, '');
   return `https://wa.me/${digitsOnly}?text=${encodedMessage}`;
 }
 
 /** Consulta directa por un producto desde la ficha (sin pasar por el carrito). */
 export function generateProductWhatsAppLink(
   product: Pick<Product, 'name' | 'price' | 'description'>,
-  quantity = 1
+  quantity = 1,
+  phoneNumber: string = DEFAULT_WHATSAPP_NUMBER
 ): string {
   const emojiHola = '\u{1F44B}';
   const emojiFlecha = '\u{25B6}';
@@ -39,21 +44,26 @@ export function generateProductWhatsAppLink(
   lines.push('');
   lines.push('¿Podrían confirmarme stock, envío y formas de pago? ¡Gracias!');
 
-  return buildWhatsAppUrl(lines.join('\n'));
+  return buildWhatsAppUrl(lines.join('\n'), phoneNumber);
 }
 
-export const generateWhatsAppLink = (cartItems: CartItem[], customerData: CustomerData): string => {
-  // Declaramos las secuencias de escape de forma segura (Inmunes a la codificación del archivo)
-  const emojiSaludo = '\u{1F44B}'; // 👋
-  const emojiCarrito = '\u{1F6D2}'; // 🛒
-  const emojiFlecha = '\u{25B6}';  // ▶
-  const emojiBolsa = '\u{1F4B0}'; // 💰
-  const emojiCohete = '\u{1F680}'; // 🚀
+export const generateWhatsAppLink = (
+  cartItems: CartItem[],
+  customerData: CustomerData,
+  phoneNumber: string = DEFAULT_WHATSAPP_NUMBER
+): string => {
+  const emojiSaludo = '\u{1F44B}';
+  const emojiCarrito = '\u{1F6D2}';
+  const emojiFlecha = '\u{25B6}';
+  const emojiBolsa = '\u{1F4B0}';
+  const emojiCohete = '\u{1F680}';
 
   const lines: string[] = [];
 
   lines.push(`¡Hola RUQLA! ${emojiSaludo}`);
-  lines.push(`Mi nombre es *${customerData.name.trim()}* y me gustaría confirmar el siguiente pedido:`);
+  lines.push(
+    `Mi nombre es *${customerData.name.trim()}* y me gustaría confirmar el siguiente pedido:`
+  );
   lines.push('');
   lines.push(`${emojiCarrito} *DETALLE DEL PEDIDO:*`);
   lines.push(`------------------------`);
@@ -64,7 +74,9 @@ export const generateWhatsAppLink = (cartItems: CartItem[], customerData: Custom
     total += itemTotal;
 
     lines.push(`${index + 1}. *${item.product.name}*`);
-    lines.push(`   ${emojiFlecha} Cantidad: ${item.quantity} x $${Number(item.product.price).toLocaleString('es-AR')}`);
+    lines.push(
+      `   ${emojiFlecha} Cantidad: ${item.quantity} x $${Number(item.product.price).toLocaleString('es-AR')}`
+    );
     lines.push(`   ${emojiFlecha} Subtotal: $${itemTotal.toLocaleString('es-AR')}`);
     lines.push('');
   });
@@ -72,9 +84,11 @@ export const generateWhatsAppLink = (cartItems: CartItem[], customerData: Custom
   lines.push(`------------------------`);
   lines.push(`${emojiBolsa} *TOTAL A PAGAR: $${total.toLocaleString('es-AR')}*`);
   lines.push('');
-  lines.push(`Por favor, indíquenme los pasos para coordinar el pago y envío. ¡Gracias! ${emojiCohete}`);
+  lines.push(
+    `Por favor, indíquenme los pasos para coordinar el pago y envío. ¡Gracias! ${emojiCohete}`
+  );
 
-  return buildWhatsAppUrl(lines.join('\n'));
+  return buildWhatsAppUrl(lines.join('\n'), phoneNumber);
 };
 
 /** Abre WhatsApp. En móvil usa navegación directa (evita bloqueo de popups tras fetch async). */

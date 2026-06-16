@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useStoreSettings } from '@/context/StoreSettingsContext';
 import { getProductHref } from '@/lib/product-url';
 import { generateWhatsAppLink, openWhatsAppLink } from '@/services/whatsapp';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -12,6 +13,7 @@ import { TruncatedText } from '@/components/ui/truncated-text';
 
 export default function CartDrawer() {
   const { isCartOpen, closeCart, cartItems, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { whatsappNumber } = useStoreSettings();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,7 +69,7 @@ export default function CartDrawer() {
       const waLink = generateWhatsAppLink(cartItems, {
         name: trimmedName,
         phone: trimmedPhone,
-      });
+      }, whatsappNumber);
       openWhatsAppLink(waLink);
       
       // Solo limpiamos si el registro en DB fue exitoso
