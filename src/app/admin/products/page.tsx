@@ -34,7 +34,7 @@ export default async function AdminProductsPage({
     console.error('🔥 Error fatal en products:', err);
     const message = (err as any)?.message || 'Error desconocido';
     return (
-      <main className="min-h-screen bg-[#050505] text-foreground">
+      <main className="min-h-screen bg-background text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h1 className="font-sans text-3xl font-extrabold tracking-tight mb-4">
             Productos
@@ -52,7 +52,7 @@ export default async function AdminProductsPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header className="mb-10">
           <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-2">

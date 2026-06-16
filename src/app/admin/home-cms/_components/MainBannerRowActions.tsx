@@ -127,7 +127,7 @@ export default function MainBannerRowActions({
           Eliminar
         </AlertDialogTrigger>
 
-        <AlertDialogContent className="bg-zinc-950">
+        <AlertDialogContent className="bg-card">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar este banner?</AlertDialogTitle>
             <AlertDialogDescription>

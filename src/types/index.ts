@@ -172,6 +172,35 @@ export interface Database {
           created_at?: string
         }
       }
+      shop_page_header: {
+        Row: {
+          id: string
+          eyebrow: string
+          title: string
+          title_highlight: string | null
+          subtitle: string | null
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          eyebrow?: string
+          title: string
+          title_highlight?: string | null
+          subtitle?: string | null
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          eyebrow?: string
+          title?: string
+          title_highlight?: string | null
+          subtitle?: string | null
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
       home_catalog_section: {
         Row: {
           id: string
@@ -270,6 +299,8 @@ export type Order = Database['public']['Tables']['orders']['Row']
 export type MainBanner = Database['public']['Tables']['main_banners']['Row']
 export type PromoBanner = Database['public']['Tables']['promo_banners']['Row']
 export type PartnerBrand = Database['public']['Tables']['partner_brands']['Row']
+export type ShopPageHeader =
+  Database['public']['Tables']['shop_page_header']['Row']
 export type HomeCatalogSection =
   Database['public']['Tables']['home_catalog_section']['Row']
 export type HomeCatalogCard = Database['public']['Tables']['home_catalog_cards']['Row'] & {

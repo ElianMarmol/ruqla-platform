@@ -133,7 +133,7 @@ export default function ProductRowActions({
           Eliminar
         </AlertDialogTrigger>
 
-        <AlertDialogContent className="bg-zinc-950">
+        <AlertDialogContent className="bg-card">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar este producto?</AlertDialogTitle>
             <AlertDialogDescription>

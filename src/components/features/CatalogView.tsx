@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { isSameCategory } from '@/lib/category-resolve';
 import ProductCard from './ProductCard';
 import { supabase } from '@/lib/supabase';
 import { Category } from '@/types';
+
+const PRODUCTOS_PATH = '/productos';
 
 export default function CatalogView() {
   const searchParams = useSearchParams();
@@ -79,35 +82,45 @@ export default function CatalogView() {
     }
     
     // Mantenemos la búsqueda de texto si existía, solo cambiamos la categoría
-    router.push(`/catalog?${params.toString()}`);
+    router.push(`${PRODUCTOS_PATH}?${params.toString()}`);
   };
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Sidebar - Filtros por Categoría */}
       <aside className="w-full lg:w-64 flex-shrink-0">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 lg:sticky lg:top-28 backdrop-blur-md">
-          <h2 className="font-sans font-bold text-xl mb-6 text-brand-green">Categorías</h2>
+        <div className="bg-card border border-border rounded-2xl p-6 lg:sticky lg:top-28 shadow-sm">
+          <h2 className="font-sans font-bold text-xl mb-6 text-primary">Explorar</h2>
           <ul className="space-y-4 font-body">
             <li>
-              <button 
+              <button
+                type="button"
                 onClick={() => handleCategoryClick('')}
-                className={`text-left w-full transition-colors flex items-center justify-between group ${!currentCategory ? 'text-brand-green font-bold' : 'text-gray-400 hover:text-brand-white'}`}
+                className={`text-left w-full transition-colors flex items-center justify-between group ${!currentCategory ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}`}
               >
-                <span>Todos los productos</span>
-                {!currentCategory && <span className="w-2 h-2 rounded-full bg-brand-green"></span>}
+                <span>Toda la colección</span>
+                {!currentCategory && (
+                  <span className="size-2 rounded-full bg-primary shrink-0" />
+                )}
               </button>
             </li>
             {categories.map((cat) => {
-              const isActive = currentCategory === cat.id || currentCategory === cat.slug;
+              const isActive =
+                currentCategory === cat.id ||
+                currentCategory === cat.slug ||
+                (currentCategory &&
+                  isSameCategory(currentCategory, cat.slug, categories));
               return (
                 <li key={cat.id}>
-                  <button 
+                  <button
+                    type="button"
                     onClick={() => handleCategoryClick(cat.slug || cat.id)}
-                    className={`text-left w-full transition-colors flex items-center justify-between group ${isActive ? 'text-brand-green font-bold' : 'text-gray-400 hover:text-brand-white'}`}
+                    className={`text-left w-full transition-colors flex items-center justify-between group ${isActive ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}`}
                   >
                     <span className="truncate pr-2">{cat.name}</span>
-                    {isActive && <span className="w-2 h-2 flex-shrink-0 rounded-full bg-brand-green"></span>}
+                    {isActive && (
+                      <span className="size-2 shrink-0 rounded-full bg-primary" />
+                    )}
                   </button>
                 </li>
               );
@@ -120,21 +133,29 @@ export default function CatalogView() {
       <main className="flex-1">
         {/* Cabecera de resultados */}
         {(currentSearch || currentCategory) && (
-          <div className="mb-6 flex flex-wrap items-center gap-2 font-body text-gray-400 text-sm">
+          <div className="mb-6 flex flex-wrap items-center gap-2 font-body text-muted-foreground text-sm">
             Filtros activos:
             {currentSearch && (
-              <span className="px-3 py-1 bg-white/10 rounded-full text-brand-white border border-white/20">
-                Búsqueda: "{currentSearch}"
+              <span className="px-3 py-1 bg-muted rounded-full text-foreground border border-border">
+                Búsqueda: &quot;{currentSearch}&quot;
               </span>
             )}
-            {currentCategory && categories.find(c => c.id === currentCategory || c.slug === currentCategory) && (
-              <span className="px-3 py-1 bg-white/10 rounded-full text-brand-white border border-white/20">
-                Cat: {categories.find(c => c.id === currentCategory || c.slug === currentCategory)?.name}
-              </span>
-            )}
+            {currentCategory &&
+              categories.find(
+                (c) => c.id === currentCategory || c.slug === currentCategory
+              ) && (
+                <span className="px-3 py-1 bg-muted rounded-full text-foreground border border-border">
+                  Cat:{' '}
+                  {
+                    categories.find(
+                      (c) => c.id === currentCategory || c.slug === currentCategory
+                    )?.name
+                  }
+                </span>
+              )}
             <button 
-              onClick={() => router.push('/catalog')}
-              className="ml-auto text-brand-green hover:underline"
+              onClick={() => router.push(PRODUCTOS_PATH)}
+              className="ml-auto text-primary hover:underline"
             >
               Limpiar filtros
             </button>
@@ -145,13 +166,16 @@ export default function CatalogView() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-              <div key={i} className="animate-pulse bg-white/5 h-96 rounded-2xl border border-white/10 flex flex-col justify-between p-4">
-                <div className="w-full h-48 bg-white/10 rounded-xl mb-4"></div>
+              <div
+                key={i}
+                className="animate-pulse bg-muted h-96 rounded-2xl border border-border flex flex-col justify-between p-4"
+              >
+                <div className="w-full h-48 bg-border rounded-xl mb-4" />
                 <div className="space-y-3">
-                  <div className="h-4 bg-white/10 rounded w-3/4"></div>
-                  <div className="h-4 bg-white/10 rounded w-1/2"></div>
+                  <div className="h-4 bg-border rounded w-3/4" />
+                  <div className="h-4 bg-border rounded w-1/2" />
                 </div>
-                <div className="h-10 bg-white/10 rounded-full w-full mt-4"></div>
+                <div className="h-10 bg-border rounded-full w-full mt-4" />
               </div>
             ))}
           </div>
@@ -172,12 +196,28 @@ export default function CatalogView() {
             </button>
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-24 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
-            <svg className="w-16 h-16 text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="text-center py-24 bg-muted/50 rounded-2xl border border-border flex flex-col items-center justify-center">
+            <svg
+              className="w-16 h-16 text-muted-foreground mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
-            <p className="text-gray-300 font-sans text-xl font-bold mb-2">No se encontraron productos.</p>
-            <p className="text-gray-500 font-body text-sm max-w-md mx-auto">Intentá ajustar los filtros de búsqueda o eliminá algunos términos para ver más resultados.</p>
+            <p className="text-foreground font-sans text-xl font-bold mb-2">
+              No se encontraron productos.
+            </p>
+            <p className="text-muted-foreground font-body text-sm max-w-md mx-auto">
+              Intentá ajustar los filtros de búsqueda o eliminá algunos términos
+              para ver más resultados.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

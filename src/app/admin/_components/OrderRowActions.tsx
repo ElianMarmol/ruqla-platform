@@ -148,7 +148,7 @@ export default function OrderRowActions({ order }: { order: Order }) {
               Cancelar
             </AlertDialogTrigger>
 
-            <AlertDialogContent className="bg-zinc-950">
+            <AlertDialogContent className="bg-card">
               <AlertDialogHeader>
                 <AlertDialogTitle>
                   ¿Estás seguro de cancelar este pedido?

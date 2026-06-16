@@ -13,6 +13,8 @@ type CartContextType = {
   cartItems: CartItem[];
   cartCount: number;
   cartTotal: number;
+  /** true después de leer localStorage en el cliente (evita hydration mismatch) */
+  isCartHydrated: boolean;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -122,10 +124,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const cartTotal = cartItems.reduce((acc, item) => acc + (Number(item.product.price) * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ 
-      cartItems, cartCount, cartTotal, 
-      isCartOpen, openCart, closeCart, 
-      addToCart, removeFromCart, updateQuantity, clearCart 
+    <CartContext.Provider value={{
+      cartItems,
+      cartCount,
+      cartTotal,
+      isCartHydrated: isInitialized,
+      isCartOpen,
+      openCart,
+      closeCart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
     }}>
       {children}
     </CartContext.Provider>

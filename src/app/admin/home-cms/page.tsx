@@ -10,7 +10,9 @@ import {
   fetchMainBanners,
   fetchPartnerBrands,
   fetchPromoBanners,
+  fetchShopPageHeader,
   homeCatalogTablesExist,
+  shopPageHeaderTableExists,
 } from './lib/queries';
 
 export const metadata = {
@@ -22,14 +24,23 @@ export const dynamic = 'force-dynamic';
 
 export default async function HomeCmsPage() {
   try {
-    const [mainBanners, promoBanners, partnerBrands, categories, catalogTablesReady] =
-      await Promise.all([
-        fetchMainBanners(),
-        fetchPromoBanners(),
-        fetchPartnerBrands(),
-        fetchAllCategoriesForCms(),
-        homeCatalogTablesExist(),
-      ]);
+    const [
+      mainBanners,
+      promoBanners,
+      partnerBrands,
+      categories,
+      catalogTablesReady,
+      shopHeaderTableReady,
+      shopPageHeader,
+    ] = await Promise.all([
+      fetchMainBanners(),
+      fetchPromoBanners(),
+      fetchPartnerBrands(),
+      fetchAllCategoriesForCms(),
+      homeCatalogTablesExist(),
+      shopPageHeaderTableExists(),
+      fetchShopPageHeader(),
+    ]);
 
     const [catalogSection, catalogCards] = await Promise.all([
       fetchHomeCatalogSection(),
@@ -37,7 +48,7 @@ export default async function HomeCmsPage() {
     ]);
 
     return (
-      <main className="min-h-screen bg-[#050505] text-foreground">
+      <main className="min-h-screen bg-background text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <header className="mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-2">
@@ -50,8 +61,8 @@ export default async function HomeCmsPage() {
                   CMS Portada
                 </h1>
                 <p className="text-muted-foreground font-body mt-2 max-w-2xl">
-                  Gestioná el carrusel Hero, banners promocionales, marcas y la
-                  sección de accesos al catálogo de la página de inicio.
+                  Gestioná el carrusel Hero, banners promocionales, marcas, accesos al
+                  catálogo y el encabezado de la tienda.
                 </p>
               </div>
             </div>
@@ -65,6 +76,8 @@ export default async function HomeCmsPage() {
             catalogCards={catalogCards}
             categories={categories}
             catalogTablesReady={catalogTablesReady}
+            shopPageHeader={shopPageHeader}
+            shopHeaderTableReady={shopHeaderTableReady}
           />
         </div>
       </main>
@@ -73,7 +86,7 @@ export default async function HomeCmsPage() {
     console.error('🔥 Error fatal en home-cms:', err);
     const message = getErrorMessage(err);
     return (
-      <main className="min-h-screen bg-[#050505] text-foreground">
+      <main className="min-h-screen bg-background text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h1 className="font-sans text-3xl font-extrabold tracking-tight mb-4">
             CMS Portada

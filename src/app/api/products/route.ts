@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { isCategoryUuid, resolveCategorySlug } from '@/lib/category-resolve';
 import { createPublicSupabase } from '@/lib/supabase-public';
 
 export const dynamic = 'force-dynamic';
@@ -8,17 +9,24 @@ export async function GET(request: Request) {
   try {
     const supabase = createPublicSupabase();
     const { searchParams } = new URL(request.url);
-    const categoryParam =
+    let categoryParam =
       searchParams.get('category') || searchParams.get('category_id');
     const search = searchParams.get('search');
     const include_empty_stock =
       searchParams.get('include_empty_stock') !== 'false';
 
-    const isUUID = categoryParam
-      ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          categoryParam
-        )
-      : false;
+    if (categoryParam && !isCategoryUuid(categoryParam)) {
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, slug, name');
+
+      categoryParam = resolveCategorySlug(
+        categoryParam,
+        categories ?? []
+      );
+    }
+
+    const isUUID = categoryParam ? isCategoryUuid(categoryParam) : false;
 
     const selectQuery =
       categoryParam && !isUUID

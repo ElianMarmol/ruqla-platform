@@ -327,7 +327,7 @@ export default function CategoryManagerDialog({
           </Button>
         }
       />
-      <DialogContent className="sm:max-w-md bg-zinc-950 border-border/60">
+      <DialogContent className="sm:max-w-md bg-card border-border/60">
         <DialogHeader>
           <DialogTitle className="font-sans">Categorías</DialogTitle>
           <DialogDescription className="font-body">

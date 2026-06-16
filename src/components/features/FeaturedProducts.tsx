@@ -18,22 +18,22 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   if (!products.length) return null;
 
   return (
-    <section className="py-16 md:py-20 bg-[#0a0a0a]/50 border-y border-border/30">
+    <section className="py-12 md:py-16 bg-white border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 md:mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 md:mb-10">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-2">
               Selección curada
             </p>
-            <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+            <h2 className="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
               Productos Destacados
             </h2>
           </div>
           <Link
-            href="/catalog"
+            href="/productos"
             className={cn(
               buttonVariants({ variant: 'outline' }),
-              'font-bold shrink-0'
+              'font-bold shrink-0 rounded-full border-foreground/15'
             )}
           >
             Ver catálogo

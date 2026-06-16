@@ -115,7 +115,7 @@ export default function ProductsAdminPanel({
                     className="border-t border-border/40 transition-colors hover:bg-muted/20"
                   >
                     <td className="px-4 py-3">
-                      <div className="h-12 w-12 rounded-lg border border-border/60 bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+                      <div className="h-12 w-12 rounded-lg border border-border/60 bg-muted flex items-center justify-center overflow-hidden">
                         {product.images?.[0] ? (
                           <img
                             src={product.images[0]}

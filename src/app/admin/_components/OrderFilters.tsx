@@ -116,7 +116,7 @@ export default function OrderFilters() {
           >
             <SelectValue placeholder="Todas" />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-950 text-foreground border-border/60">
+          <SelectContent className="bg-card text-foreground border-border/60">
             {STATUS_FILTER_OPTIONS.map((opt) => (
               <SelectItem
                 key={opt.value || 'all'}

@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { getProductHref } from '@/lib/product-url';
 import { generateWhatsAppLink, openWhatsAppLink } from '@/services/whatsapp';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { TruncatedText } from '@/components/ui/truncated-text';
 
 export default function CartDrawer() {
   const { isCartOpen, closeCart, cartItems, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -85,15 +88,15 @@ export default function CartDrawer() {
   return (
     <Sheet open={isCartOpen} onOpenChange={(open) => !open && closeCart()}>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l border-border bg-background shadow-2xl">
-        <SheetHeader className="p-6 border-b border-border/30 text-left">
+        <SheetHeader className="p-6 border-b border-border bg-card text-left">
           <SheetTitle className="font-sans font-bold text-2xl text-foreground">Tu Carrito</SheetTitle>
         </SheetHeader>
 
         {/* Content (Listado de productos) */}
-        <div className="flex-1 overflow-y-auto p-6 bg-[#0a0a0a]/50">
+        <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
           {cartItems.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-12 h-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -110,18 +113,27 @@ export default function CartDrawer() {
           ) : (
             <div className="space-y-4">
               {cartItems.map((item) => (
-                <div key={item.product.id} className="flex gap-4 items-center bg-card p-4 rounded-2xl shadow-sm border border-border/50">
-                  <div className="w-20 h-20 bg-[#050505] rounded-xl p-2 flex-shrink-0 flex items-center justify-center border border-border/30">
+                <div key={item.product.id} className="flex gap-4 items-start bg-card p-4 rounded-2xl shadow-sm border border-border/50 overflow-hidden">
+                  <div className="w-20 h-20 bg-muted rounded-xl p-2 flex-shrink-0 flex items-center justify-center border border-border">
                     {item.product.images?.[0] ? (
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain mix-blend-screen" />
+                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain" />
                     ) : (
                       <div className="w-full h-full bg-muted rounded" />
                     )}
                   </div>
                   
-                  <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
-                    <div>
-                      <h3 className="font-sans font-bold text-sm text-foreground truncate">{item.product.name}</h3>
+                  <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={getProductHref(item.product.id)}
+                        onClick={closeCart}
+                        className="block min-w-0 max-w-full hover:text-primary transition-colors"
+                      >
+                        <TruncatedText
+                          text={item.product.name}
+                          className="font-sans font-bold text-sm text-foreground"
+                        />
+                      </Link>
                       <p className="font-body text-xs text-primary font-bold mb-2">${Number(item.product.price).toLocaleString('es-AR')}</p>
                     </div>
                     
@@ -161,7 +173,7 @@ export default function CartDrawer() {
 
         {/* Footer / Formulario */}
         {cartItems.length > 0 && (
-          <SheetFooter className="border-t border-border/30 p-6 bg-background flex flex-col sm:flex-col items-stretch space-y-0">
+          <SheetFooter className="border-t border-border p-6 bg-card flex flex-col sm:flex-col items-stretch space-y-0">
             <div className="flex justify-between items-center mb-6 w-full">
               <span className="font-body text-muted-foreground font-bold">Total a pagar</span>
               <span className="font-sans font-extrabold text-3xl text-foreground">

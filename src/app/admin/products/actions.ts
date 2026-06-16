@@ -75,6 +75,7 @@ async function resolveImages(
 
 function revalidateProductsAdmin() {
   revalidatePath('/admin/products');
+  revalidatePath('/productos');
   revalidatePath('/catalog');
   revalidatePath('/');
   refresh();

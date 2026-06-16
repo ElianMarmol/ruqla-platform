@@ -122,7 +122,7 @@ export default function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-border/60">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border/60">
         <DialogHeader className="text-left border-b border-border/60 pb-4">
           <DialogTitle className="font-sans">
             {isEditing ? 'Editar producto' : 'Nuevo producto'}
@@ -190,7 +190,7 @@ export default function ProductFormDialog({
                 rows={4}
                 defaultValue={product?.description ?? ''}
                 disabled={isPending}
-                className="w-full min-h-[100px] rounded-lg border border-input bg-transparent px-3 py-2 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                className="w-full min-h-[100px] rounded-lg border border-input bg-transparent px-3 py-2 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 bg-muted/40"
               />
             </div>
 
@@ -262,14 +262,14 @@ export default function ProductFormDialog({
               <label
                 htmlFor="image"
                 className={cn(
-                  'flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border/80 bg-zinc-900/50 p-6 text-center transition-colors',
-                  'hover:border-primary/40 hover:bg-zinc-900',
-                  'focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/50',
+                  'flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/40 p-6 text-center transition-colors',
+                  'hover:border-primary/50 hover:bg-primary/5',
+                  'focus-within:border-primary focus-within:bg-primary/5 focus-within:ring-3 focus-within:ring-ring/50',
                   isPending && 'pointer-events-none opacity-50'
                 )}
               >
                 {displayPreview ? (
-                  <div className="relative overflow-hidden rounded-lg border border-border/60 bg-[#0a0a0a] p-2 shadow-inner">
+                  <div className="relative overflow-hidden rounded-lg border border-border/60 bg-muted p-2 shadow-inner">
                     <img
                       src={displayPreview}
                       alt={fileName || product?.name || 'Vista previa'}

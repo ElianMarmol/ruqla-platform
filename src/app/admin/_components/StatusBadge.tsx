@@ -5,7 +5,7 @@ export default function StatusBadge({ status }: { status: string }) {
     return (
       <Badge
         variant="outline"
-        className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+        className="border-emerald-500/50 bg-emerald-500/15 text-emerald-700"
       >
         Completado
       </Badge>
@@ -16,7 +16,7 @@ export default function StatusBadge({ status }: { status: string }) {
     return (
       <Badge
         variant="outline"
-        className="border-amber-500/40 bg-amber-500/10 text-amber-300"
+        className="border-amber-500/50 bg-amber-500/15 text-amber-800"
       >
         Pendiente
       </Badge>
@@ -27,7 +27,7 @@ export default function StatusBadge({ status }: { status: string }) {
     return (
       <Badge
         variant="outline"
-        className="border-zinc-500/50 bg-zinc-500/15 text-zinc-400"
+        className="border-zinc-400/50 bg-zinc-500/10 text-zinc-600"
       >
         Cancelado
       </Badge>
@@ -35,7 +35,7 @@ export default function StatusBadge({ status }: { status: string }) {
   }
 
   return (
-    <Badge variant="outline" className="border-zinc-500/40 bg-zinc-500/10 text-zinc-300">
+    <Badge variant="outline" className="border-border bg-muted text-muted-foreground">
       {status}
     </Badge>
   );

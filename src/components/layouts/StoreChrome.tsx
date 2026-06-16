@@ -1,9 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Navbar from '@/components/features/Navbar';
 import CartDrawer from '@/components/features/CartDrawer';
+import StoreFooter from '@/components/features/StoreFooter';
+import WhatsAppFab from '@/components/features/WhatsAppFab';
 import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
 
@@ -11,6 +14,7 @@ import { CartProvider } from '@/context/CartContext';
 export default function StoreChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
+  const isHome = pathname === '/';
 
   if (isAdmin) {
     return <>{children}</>;
@@ -18,9 +22,17 @@ export default function StoreChrome({ children }: { children: React.ReactNode })
 
   return (
     <CartProvider>
-      <Navbar />
+      <Suspense
+        fallback={
+          <header className="sticky top-0 z-50 h-16 bg-background border-b border-border" />
+        }
+      >
+        <Navbar />
+      </Suspense>
       <CartDrawer />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-background">{children}</main>
+      {!isHome ? <StoreFooter /> : null}
+      <WhatsAppFab />
       <Toaster />
     </CartProvider>
   );

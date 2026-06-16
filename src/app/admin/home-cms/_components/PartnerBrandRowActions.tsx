@@ -140,7 +140,7 @@ export default function PartnerBrandRowActions({
           Eliminar
         </AlertDialogTrigger>
 
-        <AlertDialogContent className="bg-zinc-950">
+        <AlertDialogContent className="bg-card">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar esta marca?</AlertDialogTitle>
             <AlertDialogDescription>

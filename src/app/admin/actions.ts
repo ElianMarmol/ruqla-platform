@@ -145,6 +145,7 @@ export async function updateOrderStatusAction(formData: FormData): Promise<void>
   }
 
   revalidatePath('/admin');
+  revalidatePath('/productos');
   revalidatePath('/catalog');
   revalidatePath('/');
   refresh();

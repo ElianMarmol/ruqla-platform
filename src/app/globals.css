@@ -6,8 +6,11 @@
 
 @theme {
   --color-brand-black: #050505;
-  --color-brand-white: #FAFAFA;
-  --color-brand-green: #9FC030;
+  --color-brand-white: #ffffff;
+  --color-brand-green: #9fc030;
+  --color-brand-green-dark: #7a9424;
+  --color-brand-surface: #f4f4f5;
+  --color-brand-muted: #71717a;
 
   --font-sans: var(--font-figtree), sans-serif;
   --font-body: var(--font-outfit), sans-serif;
@@ -56,47 +59,86 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root, .dark {
+/* Storefront — tema claro (referencia RuQla) */
+:root {
+  --background: #ffffff;
+  --foreground: #18181b;
+
+  --card: #ffffff;
+  --card-foreground: #18181b;
+
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+
+  --primary: var(--color-brand-green);
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f5;
+  --secondary-foreground: #27272a;
+
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+
+  --accent: #eef5d8;
+  --accent-foreground: #3f4f1a;
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: var(--color-brand-green);
+
+  --chart-1: var(--color-brand-green);
+  --chart-2: #3f4f1a;
+  --chart-3: #71717a;
+  --chart-4: #a1a1aa;
+  --chart-5: #d4d4d8;
+
+  --radius: 0.75rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: var(--color-brand-green);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: var(--color-brand-green);
+}
+
+/* Admin — tema oscuro */
+.dark {
   --background: var(--color-brand-black);
-  --foreground: var(--color-brand-white);
-  
-  --card: var(--color-brand-black);
-  --card-foreground: var(--color-brand-white);
-  
-  --popover: var(--color-brand-black);
-  --popover-foreground: var(--color-brand-white);
-  
+  --foreground: #fafafa;
+
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
+
   --primary: var(--color-brand-green);
   --primary-foreground: var(--color-brand-black);
-  
+
   --secondary: oklch(0.269 0 0);
-  --secondary-foreground: var(--color-brand-white);
-  
+  --secondary-foreground: #fafafa;
+
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  
+
   --accent: var(--color-brand-green);
   --accent-foreground: var(--color-brand-black);
-  
+
   --destructive: oklch(0.704 0.191 22.216);
   --border: #1c1c1c;
   --input: #1c1c1c;
   --ring: var(--color-brand-green);
-  
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  
-  --radius: 0.75rem;
-  
+
   --sidebar: var(--color-brand-black);
-  --sidebar-foreground: var(--color-brand-white);
+  --sidebar-foreground: #fafafa;
   --sidebar-primary: var(--color-brand-green);
   --sidebar-primary-foreground: var(--color-brand-black);
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: var(--color-brand-white);
+  --sidebar-accent-foreground: #fafafa;
   --sidebar-border: #1c1c1c;
   --sidebar-ring: var(--color-brand-green);
 }
@@ -113,11 +155,16 @@
   }
 }
 
-/* Global scrollbar — dark mode */
+/* Scrollbar — claro (store) */
 :root,
 body {
   scrollbar-width: thin;
-  scrollbar-color: #27272a #09090b; /* thumb zinc-800 · track zinc-950 */
+  scrollbar-color: #d4d4d8 #f4f4f5;
+}
+
+.dark,
+.dark body {
+  scrollbar-color: #27272a #09090b;
 }
 
 *::-webkit-scrollbar {
@@ -126,16 +173,28 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-  background: #09090b; /* zinc-950 */
+  background: #f4f4f5;
+}
+
+.dark *::-webkit-scrollbar-track {
+  background: #09090b;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #27272a; /* zinc-800 */
+  background-color: #d4d4d8;
   border-radius: 9999px;
 }
 
+.dark *::-webkit-scrollbar-thumb {
+  background-color: #27272a;
+}
+
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #3f3f46; /* zinc-700 */
+  background-color: #a1a1aa;
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: #3f3f46;
 }
 
 @keyframes partner-marquee {
@@ -159,5 +218,24 @@ body {
     width: 100%;
     max-width: 72rem;
     margin-inline: auto;
+  }
+}
+
+/* Portada: repartir secciones en una pantalla (desktop) */
+@media (min-width: 1024px) {
+  /* Escala visual ~125% (equivalente a zoom del navegador) */
+  .home-landing {
+    zoom: 1.25;
+    justify-content: space-between;
+    gap: 0.625rem;
+  }
+
+  .home-landing > section {
+    flex-shrink: 1;
+    min-height: 0;
+  }
+
+  .home-landing .home-newsletter {
+    flex: 0 0 auto;
   }
 }

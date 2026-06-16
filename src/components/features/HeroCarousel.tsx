@@ -1,75 +1,237 @@
 'use client';
 
-import { MainBanner } from "@/types";
+import Link from 'next/link';
+import { Award, ShieldCheck, Tag, Truck } from 'lucide-react';
+
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
+} from '@/components/ui/carousel';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import type { MainBanner } from '@/types';
 
-export default function HeroCarousel({ banners }: { banners: MainBanner[] }) {
-  if (!banners || banners.length === 0) return null;
+const HERO_VALUE_PROPS = [
+  { icon: Award, title: 'CALIDAD PREMIUM' },
+  { icon: Truck, title: 'ENVÍOS RÁPIDOS' },
+  { icon: ShieldCheck, title: 'COMPRA SEGURA' },
+] as const;
+
+function splitTitleAccent(title: string) {
+  const words = title.trim().split(/\s+/);
+  if (words.length <= 1) {
+    return { lead: title, accent: '' };
+  }
+  const accent = words.pop() ?? '';
+  return { lead: words.join(' '), accent };
+}
+
+function HeroValueProps({ compact }: { compact?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col justify-center gap-3 border-border/60',
+        compact
+          ? 'hidden xl:flex xl:border-l xl:pl-4'
+          : 'hidden xl:flex xl:border-l xl:pl-6 xl:gap-6'
+      )}
+    >
+      {HERO_VALUE_PROPS.map(({ icon: Icon, title }) => (
+        <div key={title} className="flex items-center gap-2">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-primary">
+            <Icon className="size-4" strokeWidth={2} aria-hidden />
+          </div>
+          <p className="font-sans text-[10px] font-bold tracking-wide text-foreground leading-tight">
+            {title}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HeroSlide({
+  banner,
+  compact,
+}: {
+  banner: MainBanner;
+  compact?: boolean;
+}) {
+  const { lead, accent } = splitTitleAccent(banner.title);
 
   return (
-    <div className="w-full relative group">
-      <Carousel 
-        className="w-full"
-        opts={{
-          loop: true,
-        }}
-      >
-        <CarouselContent>
-          {banners.map((banner) => (
-            <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[500px] md:h-[600px] flex items-center overflow-hidden">
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
-                  style={{ backgroundImage: `url(${banner.image_url})` }}
-                />
-
-                <div className="absolute inset-0 bg-black/40 z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent z-10" />
-
-                <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full flex flex-col justify-center h-full">
-                  <div className="max-w-2xl space-y-6">
-                    <h1 className="text-5xl md:text-7xl font-sans font-extrabold text-foreground leading-[1.1] tracking-tighter drop-shadow-2xl">
-                      {banner.title}
-                    </h1>
-                    {banner.subtitle && (
-                      <p className="text-xl md:text-2xl text-muted-foreground font-body max-w-xl font-medium">
-                        {banner.subtitle}
-                      </p>
-                    )}
-                    {banner.button_text && banner.button_link && (
-                      <div className="pt-4">
-                        <Link 
-                          href={banner.button_link}
-                          className={buttonVariants({ 
-                            size: "lg", 
-                            className: "font-sans font-bold text-lg rounded-full px-8 py-7 shadow-[0_0_20px_rgba(159,192,48,0.3)] hover:shadow-[0_0_30px_rgba(159,192,48,0.5)] transition-all" 
-                          })}
-                        >
-                          {banner.button_text}
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        {banners.length > 1 && (
-          <div className="hidden md:flex justify-end absolute bottom-8 right-12 z-30 gap-3">
-            <CarouselPrevious className="static translate-y-0 h-12 w-12 bg-background/50 border-border/50 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors" />
-            <CarouselNext className="static translate-y-0 h-12 w-12 bg-background/50 border-border/50 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors" />
-          </div>
+    <div className="rounded-2xl lg:rounded-3xl bg-muted/80 border border-border overflow-hidden h-full">
+      <div
+        className={cn(
+          'grid items-center h-full',
+          compact
+            ? 'gap-3 p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)_auto] lg:gap-4 lg:p-4'
+            : 'gap-6 p-6 md:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)_auto] lg:p-10'
         )}
-      </Carousel>
+      >
+        <div className="flex flex-col justify-center space-y-2 lg:space-y-2.5 order-2 lg:order-1 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+            Tecnología que te acompaña
+          </p>
+
+          <h1
+            className={cn(
+              'font-sans font-extrabold leading-[1.1] tracking-tight text-foreground',
+              compact
+                ? 'text-xl sm:text-2xl lg:text-[1.65rem]'
+                : 'text-3xl sm:text-4xl lg:text-5xl'
+            )}
+          >
+            {accent ? (
+              <>
+                {lead} <span className="text-primary">{accent}</span>
+              </>
+            ) : (
+              <span className="text-primary">{banner.title}</span>
+            )}
+          </h1>
+
+          {banner.subtitle && !compact ? (
+            <p className="text-sm text-muted-foreground font-body max-w-md line-clamp-2">
+              {banner.subtitle}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2 pt-0.5">
+            {banner.button_text && banner.button_link ? (
+              <Link
+                href={banner.button_link}
+                className={buttonVariants({
+                  size: 'sm',
+                  className: 'rounded-full font-bold px-5 h-9 text-xs',
+                })}
+              >
+                {banner.button_text}
+              </Link>
+            ) : (
+              <Link
+                href="/productos"
+                className={buttonVariants({
+                  size: 'sm',
+                  className: 'rounded-full font-bold px-5 h-9 text-xs',
+                })}
+              >
+                VER PRODUCTOS →
+              </Link>
+            )}
+            <Link
+              href="/productos"
+              className={buttonVariants({
+                variant: 'outline',
+                size: 'sm',
+                className:
+                  'rounded-full font-bold px-5 h-9 text-xs border-foreground/20 bg-white hover:bg-white',
+              })}
+            >
+              <Tag className="size-3.5" />
+              VER OFERTAS
+            </Link>
+          </div>
+        </div>
+
+        <div className="order-1 lg:order-2 flex items-center justify-center min-h-0">
+          <div
+            className={cn(
+              'relative w-full rounded-xl overflow-hidden bg-white shadow-sm',
+              compact
+                ? 'h-[140px] sm:h-[160px] lg:h-[min(22vh,200px)] max-w-sm mx-auto'
+                : 'aspect-[4/3] max-w-md h-[200px] lg:h-[280px]'
+            )}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${banner.image_url})` }}
+              role="img"
+              aria-label={banner.title}
+            />
+          </div>
+        </div>
+
+        <div className="order-3 hidden lg:block">
+          <HeroValueProps compact={compact} />
+        </div>
+      </div>
     </div>
+  );
+}
+
+const FALLBACK_BANNER: MainBanner = {
+  id: 'fallback',
+  title: 'Accesorios que van con vos.',
+  subtitle:
+    'Cargadores, fundas, auriculares y más. Calidad, diseño y practicidad en un solo lugar.',
+  image_url:
+    'https://images.unsplash.com/photo-1695048062967-61e7b1a5b0b1?w=800&q=80',
+  button_text: 'VER PRODUCTOS →',
+  button_link: '/productos',
+  is_active: true,
+  order_index: 0,
+  created_at: new Date().toISOString(),
+};
+
+type HeroCarouselProps = {
+  banners: MainBanner[];
+  compact?: boolean;
+};
+
+export default function HeroCarousel({ banners, compact }: HeroCarouselProps) {
+  const slides = banners.length > 0 ? banners : [FALLBACK_BANNER];
+
+  return (
+    <section
+      className={cn(
+        'home-hero shrink-0 px-4 md:px-6 lg:px-8',
+        compact ? 'pt-2 pb-1 lg:flex-[1.15] lg:min-h-0' : 'pt-5 pb-3'
+      )}
+    >
+      <div className="max-w-7xl mx-auto h-full flex flex-col min-h-0">
+        <Carousel
+          className="w-full flex-1 min-h-0 flex flex-col"
+          opts={{
+            loop: slides.length > 1,
+          }}
+        >
+          <CarouselContent className="flex-1 min-h-0 -ml-0">
+            {slides.map((banner) => (
+              <CarouselItem key={banner.id} className="pl-0 basis-full">
+                <HeroSlide banner={banner} compact={compact} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+
+          {slides.length > 1 ? (
+            <div className="flex justify-center gap-1.5 mt-2 shrink-0">
+              {slides.map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    'size-1.5 rounded-full',
+                    i === 0 ? 'bg-primary' : 'bg-border'
+                  )}
+                  aria-hidden
+                />
+              ))}
+            </div>
+          ) : null}
+        </Carousel>
+
+        {compact ? (
+          <div className="flex justify-center gap-6 py-2 lg:hidden border-t border-border/40 mt-2">
+            {HERO_VALUE_PROPS.map(({ icon: Icon, title }) => (
+              <div key={title} className="flex items-center gap-1.5">
+                <Icon className="size-3.5 text-primary" aria-hidden />
+                <span className="text-[9px] font-bold text-foreground">{title}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </section>
   );
 }

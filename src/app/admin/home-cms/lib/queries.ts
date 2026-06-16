@@ -2,6 +2,7 @@ import {
   DEFAULT_HOME_CATALOG_CARDS,
   DEFAULT_HOME_CATALOG_SECTION,
 } from '@/lib/home-catalog-defaults';
+import { DEFAULT_SHOP_PAGE_HEADER } from '@/lib/shop-page-defaults';
 import { isMissingSchemaError } from '@/lib/supabase-errors';
 import { supabaseService } from '@/lib/supabase-service';
 import type {
@@ -11,6 +12,7 @@ import type {
   MainBanner,
   PartnerBrand,
   PromoBanner,
+  ShopPageHeader,
 } from '@/types';
 
 export async function fetchMainBanners(): Promise<MainBanner[]> {
@@ -97,6 +99,33 @@ export async function fetchHomeCatalogCards(): Promise<HomeCatalogCard[]> {
   }
 
   return (data ?? []) as HomeCatalogCard[];
+}
+
+export async function fetchShopPageHeader(): Promise<ShopPageHeader> {
+  const { data, error } = await supabaseService
+    .from('shop_page_header')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSchemaError(error)) {
+      return DEFAULT_SHOP_PAGE_HEADER;
+    }
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_SHOP_PAGE_HEADER) as ShopPageHeader;
+}
+
+/** true cuando la tabla shop_page_header existe en Supabase */
+export async function shopPageHeaderTableExists(): Promise<boolean> {
+  const { error } = await supabaseService
+    .from('shop_page_header')
+    .select('id')
+    .limit(1);
+
+  return !error || !isMissingSchemaError(error);
 }
 
 /** true cuando las tablas home_catalog_* existen en Supabase */

@@ -23,7 +23,7 @@ export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
 
   return (
-    <Card className="border-border/60 bg-card">
+    <Card className="border-2 border-border bg-card shadow-lg ring-1 ring-border/50">
       <CardHeader>
         <CardTitle className="font-sans">Credenciales</CardTitle>
         <CardDescription className="font-body">

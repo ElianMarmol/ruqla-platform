@@ -12,13 +12,13 @@ export default function PromoGrid({ banners }: PromoGridProps) {
   if (!banners.length) return null;
 
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section className="py-12 md:py-16 bg-muted/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 md:mb-12">
-          <p className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">
+        <div className="mb-8 md:mb-10">
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-2">
             RUQLA
           </p>
-          <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+          <h2 className="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
             Ofertas y Promociones
           </h2>
         </div>
@@ -29,8 +29,8 @@ export default function PromoGrid({ banners }: PromoGridProps) {
             const card = (
               <article
                 className={cn(
-                  'group relative min-h-[220px] sm:min-h-[260px] md:min-h-[300px] rounded-2xl overflow-hidden border border-border/40',
-                  'transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_40px_rgba(159,192,48,0.12)]',
+                  'group relative min-h-[220px] sm:min-h-[260px] md:min-h-[280px] rounded-2xl overflow-hidden border border-border shadow-sm',
+                  'transition-all duration-300 hover:shadow-md',
                   isFull ? 'md:col-span-2' : 'col-span-1'
                 )}
               >
@@ -38,13 +38,13 @@ export default function PromoGrid({ banners }: PromoGridProps) {
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${banner.image_url})` }}
                 />
-                <div className="absolute inset-0 bg-black/50 transition-colors duration-300 group-hover:bg-black/40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                 <div className="relative z-10 flex h-full min-h-[inherit] flex-col justify-end p-6 sm:p-8">
                   <h3 className="font-sans text-2xl sm:text-3xl font-extrabold text-white tracking-tight max-w-xl">
                     {banner.title}
                   </h3>
                   {banner.subtitle && (
-                    <p className="mt-2 text-sm sm:text-base text-white/80 font-body max-w-lg line-clamp-2">
+                    <p className="mt-2 text-sm sm:text-base text-white/85 font-body max-w-lg line-clamp-2">
                       {banner.subtitle}
                     </p>
                   )}

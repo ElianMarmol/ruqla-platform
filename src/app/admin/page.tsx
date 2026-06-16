@@ -68,7 +68,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido';
     return (
-      <main className="min-h-screen bg-[#050505] text-foreground">
+      <main className="min-h-screen bg-background text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h1 className="font-sans text-3xl font-extrabold tracking-tight mb-4">
             Panel de Administración
@@ -93,7 +93,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   );
 
   return (
-    <main className="min-h-screen bg-[#050505] text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header className="mb-10">
           <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-2">
@@ -115,7 +115,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <CardDescription className="font-body uppercase tracking-wider text-xs">
                   Facturación
                 </CardDescription>
-                <span className="text-emerald-400">
+                <span className="text-emerald-600">
                   <TrendingUp />
                 </span>
               </div>
@@ -125,7 +125,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground font-body">
-                Solo órdenes <span className="text-emerald-300">completed</span> (excluye
+                Solo órdenes <span className="text-emerald-700 font-semibold">completed</span> (excluye
                 canceladas y pendientes).
               </p>
             </CardContent>
@@ -137,7 +137,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <CardDescription className="font-body uppercase tracking-wider text-xs">
                   Pedidos pendientes
                 </CardDescription>
-                <span className="text-amber-300">
+                <span className="text-amber-600">
                   <Clock />
                 </span>
               </div>

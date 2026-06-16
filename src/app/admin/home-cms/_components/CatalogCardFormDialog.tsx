@@ -98,7 +98,7 @@ export default function CatalogCardFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-950 sm:max-w-md">
+      <DialogContent className="bg-card sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Editar tarjeta' : 'Nueva tarjeta de catálogo'}

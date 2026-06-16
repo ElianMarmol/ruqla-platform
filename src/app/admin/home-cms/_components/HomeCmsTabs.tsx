@@ -8,9 +8,11 @@ import type {
   MainBanner,
   PartnerBrand,
   PromoBanner,
+  ShopPageHeader,
 } from '@/types';
 
 import CatalogSectionPanel from './CatalogSectionPanel';
+import ShopHeaderSettings from './ShopHeaderSettings';
 import HeroBannersPanel from './HeroBannersPanel';
 import PartnerBrandsPanel from './PartnerBrandsPanel';
 import PromoBannersPanel from './PromoBannersPanel';
@@ -23,6 +25,8 @@ type HomeCmsTabsProps = {
   catalogCards: HomeCatalogCard[];
   categories: Category[];
   catalogTablesReady: boolean;
+  shopPageHeader: ShopPageHeader;
+  shopHeaderTableReady: boolean;
 };
 
 export default function HomeCmsTabs({
@@ -33,6 +37,8 @@ export default function HomeCmsTabs({
   catalogCards,
   categories,
   catalogTablesReady,
+  shopPageHeader,
+  shopHeaderTableReady,
 }: HomeCmsTabsProps) {
   return (
     <Tabs defaultValue="hero" className="w-full">
@@ -41,6 +47,7 @@ export default function HomeCmsTabs({
         <TabsTrigger value="promo">Promo Banners</TabsTrigger>
         <TabsTrigger value="brands">Marcas</TabsTrigger>
         <TabsTrigger value="catalog">Accesos catálogo</TabsTrigger>
+        <TabsTrigger value="shop">Encabezado tienda</TabsTrigger>
       </TabsList>
 
       <TabsContent value="hero" className="mt-6">
@@ -68,6 +75,15 @@ export default function HomeCmsTabs({
             cards={catalogCards}
             categories={categories}
             tablesReady={catalogTablesReady}
+          />
+        </section>
+      </TabsContent>
+
+      <TabsContent value="shop" className="mt-6">
+        <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <ShopHeaderSettings
+            header={shopPageHeader}
+            tablesReady={shopHeaderTableReady}
           />
         </section>
       </TabsContent>

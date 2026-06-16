@@ -93,7 +93,7 @@ export default function PromoBannersPanel({ banners }: PromoBannersPanelProps) {
                   className="border-t border-border/40 transition-colors hover:bg-muted/20"
                 >
                   <td className="px-4 py-3">
-                    <div className="h-14 w-24 rounded-lg border border-border/60 bg-[#0a0a0a] overflow-hidden flex items-center justify-center">
+                    <div className="h-14 w-24 rounded-lg border border-border/60 bg-muted overflow-hidden flex items-center justify-center">
                       {banner.image_url ? (
                         <img
                           src={banner.image_url}
