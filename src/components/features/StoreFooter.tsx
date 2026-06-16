@@ -1,33 +1,38 @@
 import Link from 'next/link';
 
-export default function StoreFooter() {
+import BrandLogo from '@/components/features/BrandLogo';
+import { formatFooterCopyright } from '@/lib/store-footer-defaults';
+import type { StoreFooter, StoreFooterLink } from '@/types';
+
+type StoreFooterProps = {
+  section: StoreFooter;
+  links: StoreFooterLink[];
+};
+
+export default function StoreFooter({ section, links }: StoreFooterProps) {
+  if (!section.is_active) return null;
+
   return (
     <footer className="border-t border-border bg-white py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <p className="font-sans text-xl font-extrabold tracking-tight">
-              <span className="text-foreground">RÚ</span>
-              <span className="text-primary">qla</span>
-            </p>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
-              Accesorios y Tecnología
-            </p>
-          </div>
-          <nav className="flex flex-wrap gap-6 text-sm font-body text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">
-              Inicio
-            </Link>
-            <Link href="/productos" className="hover:text-primary transition-colors">
-              Productos
-            </Link>
-            <Link href="/productos" className="hover:text-primary transition-colors">
-              Ofertas
-            </Link>
-          </nav>
+          <BrandLogo className="h-12 sm:h-14" />
+          {links.length > 0 ? (
+            <nav className="flex flex-wrap gap-6 text-sm font-body text-muted-foreground">
+              {links.map((link) => (
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  className="hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
         </div>
         <p className="mt-8 text-xs text-muted-foreground font-body">
-          © {new Date().getFullYear()} RUQLA. Todos los derechos reservados.
+          {formatFooterCopyright(section.copyright_text)}
         </p>
       </div>
     </footer>

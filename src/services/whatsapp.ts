@@ -23,26 +23,24 @@ export function generateProductWhatsAppLink(
   quantity = 1,
   phoneNumber: string = DEFAULT_WHATSAPP_NUMBER
 ): string {
-  const emojiHola = '\u{1F44B}';
-  const emojiFlecha = '\u{25B6}';
   const lines: string[] = [];
 
-  lines.push(`¡Hola RUQLA! ${emojiHola}`);
+  lines.push('Hola RUQLA!');
   lines.push('Me interesa este producto:');
   lines.push('');
   lines.push(`*${product.name.trim()}*`);
   lines.push(
-    `${emojiFlecha} Cantidad: ${quantity} · $${Number(product.price).toLocaleString('es-AR')} c/u`
+    `- Cantidad: ${quantity} x $${Number(product.price).toLocaleString('es-AR')} c/u`
   );
   lines.push(
-    `${emojiFlecha} Total estimado: $${(Number(product.price) * quantity).toLocaleString('es-AR')}`
+    `- Total estimado: $${(Number(product.price) * quantity).toLocaleString('es-AR')}`
   );
   if (product.description?.trim()) {
     lines.push('');
-    lines.push(`_${product.description.trim().slice(0, 280)}_`);
+    lines.push(product.description.trim().slice(0, 280));
   }
   lines.push('');
-  lines.push('¿Podrían confirmarme stock, envío y formas de pago? ¡Gracias!');
+  lines.push('Podrian confirmarme stock, envio y formas de pago? Gracias!');
 
   return buildWhatsAppUrl(lines.join('\n'), phoneNumber);
 }
@@ -52,21 +50,15 @@ export const generateWhatsAppLink = (
   customerData: CustomerData,
   phoneNumber: string = DEFAULT_WHATSAPP_NUMBER
 ): string => {
-  const emojiSaludo = '\u{1F44B}';
-  const emojiCarrito = '\u{1F6D2}';
-  const emojiFlecha = '\u{25B6}';
-  const emojiBolsa = '\u{1F4B0}';
-  const emojiCohete = '\u{1F680}';
-
   const lines: string[] = [];
 
-  lines.push(`¡Hola RUQLA! ${emojiSaludo}`);
+  lines.push('Hola RUQLA!');
   lines.push(
-    `Mi nombre es *${customerData.name.trim()}* y me gustaría confirmar el siguiente pedido:`
+    `Mi nombre es *${customerData.name.trim()}* y me gustaria confirmar el siguiente pedido:`
   );
   lines.push('');
-  lines.push(`${emojiCarrito} *DETALLE DEL PEDIDO:*`);
-  lines.push(`------------------------`);
+  lines.push('*DETALLE DEL PEDIDO:*');
+  lines.push('------------------------');
 
   let total = 0;
   cartItems.forEach((item, index) => {
@@ -75,23 +67,23 @@ export const generateWhatsAppLink = (
 
     lines.push(`${index + 1}. *${item.product.name}*`);
     lines.push(
-      `   ${emojiFlecha} Cantidad: ${item.quantity} x $${Number(item.product.price).toLocaleString('es-AR')}`
+      `   Cantidad: ${item.quantity} x $${Number(item.product.price).toLocaleString('es-AR')}`
     );
-    lines.push(`   ${emojiFlecha} Subtotal: $${itemTotal.toLocaleString('es-AR')}`);
+    lines.push(`   Subtotal: $${itemTotal.toLocaleString('es-AR')}`);
     lines.push('');
   });
 
-  lines.push(`------------------------`);
-  lines.push(`${emojiBolsa} *TOTAL A PAGAR: $${total.toLocaleString('es-AR')}*`);
+  lines.push('------------------------');
+  lines.push(`*TOTAL A PAGAR: $${total.toLocaleString('es-AR')}*`);
   lines.push('');
   lines.push(
-    `Por favor, indíquenme los pasos para coordinar el pago y envío. ¡Gracias! ${emojiCohete}`
+    'Por favor, indiquenme los pasos para coordinar el pago y envio. Gracias!'
   );
 
   return buildWhatsAppUrl(lines.join('\n'), phoneNumber);
 };
 
-/** Abre WhatsApp. En móvil usa navegación directa (evita bloqueo de popups tras fetch async). */
+/** Abre WhatsApp. En móvil navega en la misma pestaña; en desktop, solo en una nueva. */
 export function openWhatsAppLink(url: string): void {
   if (typeof window === 'undefined') return;
 
@@ -106,8 +98,13 @@ export function openWhatsAppLink(url: string): void {
     return;
   }
 
-  const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-  if (!newWindow) {
-    window.location.assign(url);
-  }
+  // noopener hace que window.open devuelva null aunque la pestaña se abra;
+  // un <a target="_blank"> evita redirigir la pestaña actual por error.
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }

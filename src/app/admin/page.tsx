@@ -12,10 +12,11 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 
 import OrderFilters from './_components/OrderFilters';
+import BillingPeriodFilter from './_components/BillingPeriodFilter';
 import OrderRowActions from './_components/OrderRowActions';
 import OrdersPagination from './_components/OrdersPagination';
 import StatusBadge from './_components/StatusBadge';
-import { adminHref, parseAdminFilters } from './lib/filters';
+import { adminHref, getBillingDateRange, parseAdminFilters } from './lib/filters';
 import { fetchAdminMetrics, fetchPaginatedOrders } from './lib/queries';
 
 export const metadata = {
@@ -56,13 +57,17 @@ function FiltersFallback() {
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const resolvedParams = await searchParams;
   const filters = parseAdminFilters(resolvedParams);
+  const billingRange = getBillingDateRange(filters.billingPeriod, {
+    billingDate: filters.billingDate,
+    billingMonth: filters.billingMonth,
+  });
 
   let metrics;
   let paginated;
 
   try {
     [metrics, paginated] = await Promise.all([
-      fetchAdminMetrics(),
+      fetchAdminMetrics(billingRange),
       fetchPaginatedOrders(filters),
     ]);
   } catch (err) {
@@ -124,10 +129,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-muted-foreground font-body">
-                Solo órdenes <span className="text-emerald-700 font-semibold">completed</span> (excluye
-                canceladas y pendientes).
+              <p className="text-xs text-muted-foreground font-body mb-1">
+                {billingRange.label} · solo órdenes{' '}
+                <span className="text-emerald-700 font-semibold">completed</span>
               </p>
+              <Suspense fallback={null}>
+                <BillingPeriodFilter />
+              </Suspense>
             </CardContent>
           </Card>
 

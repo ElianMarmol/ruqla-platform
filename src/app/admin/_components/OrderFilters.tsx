@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 
 import type { OrderStatus } from '../constants';
 import { STATUS_FILTER_OPTIONS } from '../constants';
-import { buildAdminSearchParams } from '../lib/filters';
+import { buildAdminSearchParams, parseAdminFilters } from '../lib/filters';
 
 const STATUS_ALL = '__all__';
 
@@ -51,7 +51,11 @@ export default function OrderFilters() {
 
   const pushFilters = useCallback(
     (values: { status: string; from: string; to: string }) => {
+      const current = parseAdminFilters(
+        Object.fromEntries(searchParams.entries())
+      );
       const params = buildAdminSearchParams({
+        ...current,
         status: parseStatusParam(values.status),
         dateFrom: values.from || null,
         dateTo: values.to || null,
@@ -64,7 +68,7 @@ export default function OrderFilters() {
         router.push(href);
       });
     },
-    [router]
+    [router, searchParams]
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,8 +80,17 @@ export default function OrderFilters() {
     setStatus('');
     setFrom('');
     setTo('');
+    const current = parseAdminFilters(
+      Object.fromEntries(searchParams.entries())
+    );
+    const params = buildAdminSearchParams({
+      billingPeriod: current.billingPeriod,
+      billingDate: current.billingDate,
+      billingMonth: current.billingMonth,
+    });
+    const href = params.toString() ? `/admin?${params.toString()}` : '/admin';
     startTransition(() => {
-      router.push('/admin');
+      router.push(href);
     });
   };
 

@@ -11,6 +11,14 @@ import {
   DEFAULT_STORE_TOP_BAR,
   DEFAULT_STORE_TOP_BAR_ITEMS,
 } from '@/lib/store-top-bar-defaults';
+import {
+  DEFAULT_STORE_TRUST_FEATURES,
+  DEFAULT_STORE_TRUST_FEATURES_ITEMS,
+} from '@/lib/store-trust-features-defaults';
+import {
+  DEFAULT_STORE_FOOTER,
+  DEFAULT_STORE_FOOTER_LINKS,
+} from '@/lib/store-footer-defaults';
 import { isMissingSchemaError } from '@/lib/supabase-errors';
 import { supabaseService } from '@/lib/supabase-service';
 import type {
@@ -25,6 +33,10 @@ import type {
   StoreSettings,
   StoreTopBar,
   StoreTopBarItem,
+  StoreTrustFeatures,
+  StoreTrustFeaturesItem,
+  StoreFooter,
+  StoreFooterLink,
 } from '@/types';
 
 export async function fetchMainBanners(): Promise<MainBanner[]> {
@@ -220,6 +232,82 @@ export async function shopPageHeaderTableExists(): Promise<boolean> {
 export async function homeCatalogTablesExist(): Promise<boolean> {
   const { error } = await supabaseService
     .from('home_catalog_section')
+    .select('id')
+    .limit(1);
+
+  return !error || !isMissingSchemaError(error);
+}
+
+export async function fetchStoreTrustFeaturesSection(): Promise<StoreTrustFeatures> {
+  const { data, error } = await supabaseService
+    .from('store_trust_features')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_TRUST_FEATURES;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_TRUST_FEATURES) as StoreTrustFeatures;
+}
+
+export async function fetchStoreTrustFeaturesItems(): Promise<StoreTrustFeaturesItem[]> {
+  const { data, error } = await supabaseService
+    .from('store_trust_features_items')
+    .select('*')
+    .order('order_index', { ascending: true });
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_TRUST_FEATURES_ITEMS;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_TRUST_FEATURES_ITEMS) as StoreTrustFeaturesItem[];
+}
+
+export async function storeTrustFeaturesTablesExist(): Promise<boolean> {
+  const { error } = await supabaseService
+    .from('store_trust_features')
+    .select('id')
+    .limit(1);
+
+  return !error || !isMissingSchemaError(error);
+}
+
+export async function fetchStoreFooterSection(): Promise<StoreFooter> {
+  const { data, error } = await supabaseService
+    .from('store_footer')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_FOOTER;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_FOOTER) as StoreFooter;
+}
+
+export async function fetchStoreFooterLinks(): Promise<StoreFooterLink[]> {
+  const { data, error } = await supabaseService
+    .from('store_footer_links')
+    .select('*')
+    .order('order_index', { ascending: true });
+
+  if (error) {
+    if (isMissingSchemaError(error)) return DEFAULT_STORE_FOOTER_LINKS;
+    throw new Error(error.message);
+  }
+
+  return (data ?? DEFAULT_STORE_FOOTER_LINKS) as StoreFooterLink[];
+}
+
+export async function storeFooterTablesExist(): Promise<boolean> {
+  const { error } = await supabaseService
+    .from('store_footer')
     .select('id')
     .limit(1);
 

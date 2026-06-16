@@ -8,6 +8,7 @@ import { ChevronDown, Search, ShoppingCart, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import BrandLogo from '@/components/features/BrandLogo';
 import { useCart } from '@/context/CartContext';
 import {
   getNavLinkCategorySlug,
@@ -72,16 +73,8 @@ export default function Navbar({ topBar, navLinks = [] }: NavbarProps) {
       {topBar}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 gap-4">
-          <Link href="/" className="flex flex-col shrink-0 group">
-            <span className="font-sans text-2xl font-extrabold leading-none tracking-tight">
-              <span className="text-foreground">RÚ</span>
-              <span className="text-primary">qla</span>
-            </span>
-            <span className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground font-body mt-0.5">
-              Accesorios y Tecnología
-            </span>
-          </Link>
+        <div className="flex items-center justify-between h-16 gap-4">
+          <BrandLogo className="h-14 md:h-[3.75rem]" />
 
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
             <Link

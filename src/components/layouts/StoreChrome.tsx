@@ -10,16 +10,24 @@ import WhatsAppFab from '@/components/features/WhatsAppFab';
 import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
 import type { StoreNavLinkWithCategory } from '@/lib/nav-link-resolve';
+import type {
+  StoreFooter as StoreFooterData,
+  StoreFooterLink,
+} from '@/types';
 
 /** Navbar y carrito solo en rutas públicas del storefront (no en /admin). */
 export default function StoreChrome({
   children,
   topBar,
   navLinks = [],
+  footerSection,
+  footerLinks = [],
 }: {
   children: React.ReactNode;
   topBar?: React.ReactNode;
   navLinks?: StoreNavLinkWithCategory[];
+  footerSection: StoreFooterData;
+  footerLinks?: StoreFooterLink[];
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
@@ -40,7 +48,9 @@ export default function StoreChrome({
       </Suspense>
       <CartDrawer />
       <main className="flex-1 bg-background">{children}</main>
-      {!isHome ? <StoreFooter /> : null}
+      {!isHome ? (
+        <StoreFooter section={footerSection} links={footerLinks} />
+      ) : null}
       <WhatsAppFab />
       <Toaster />
     </CartProvider>

@@ -3,17 +3,19 @@ import HeroCarousel from '@/components/features/HeroCarousel';
 import SetupCategoriesSection from '@/components/features/SetupCategoriesSection';
 import TrustFeaturesBar from '@/components/features/TrustFeaturesBar';
 import { fetchPublicHomeCatalog } from '@/lib/home-catalog-queries';
+import { fetchPublicStoreTrustFeatures } from '@/lib/store-trust-features-queries';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [{ data: mainBanners }, homeCatalog] = await Promise.all([
+  const [{ data: mainBanners }, homeCatalog, trustFeatures] = await Promise.all([
     supabase
       .from('main_banners')
       .select('*')
       .eq('is_active', true)
       .order('order_index', { ascending: true }),
     fetchPublicHomeCatalog(),
+    fetchPublicStoreTrustFeatures(),
   ]);
 
   return (
@@ -26,7 +28,7 @@ export default async function HomePage() {
         compact
       />
 
-      <TrustFeaturesBar compact />
+      <TrustFeaturesBar items={trustFeatures.items} compact />
     </div>
   );
 }

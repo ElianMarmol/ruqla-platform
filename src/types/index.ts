@@ -261,6 +261,98 @@ export interface Database {
           created_at?: string
         }
       }
+      store_trust_features: {
+        Row: {
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
+      store_trust_features_items: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          icon: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string
+          icon?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          icon?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
+      store_footer: {
+        Row: {
+          id: string
+          is_active: boolean
+          copyright_text: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean
+          copyright_text?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean
+          copyright_text?: string
+          updated_at?: string
+        }
+      }
+      store_footer_links: {
+        Row: {
+          id: string
+          label: string
+          href: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          href: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          href?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
       shop_page_header: {
         Row: {
           id: string
@@ -395,6 +487,13 @@ export type StoreNavLink = Database['public']['Tables']['store_nav_links']['Row'
 export type StoreTopBar = Database['public']['Tables']['store_top_bar']['Row']
 export type StoreTopBarItem =
   Database['public']['Tables']['store_top_bar_items']['Row']
+export type StoreTrustFeatures =
+  Database['public']['Tables']['store_trust_features']['Row']
+export type StoreTrustFeaturesItem =
+  Database['public']['Tables']['store_trust_features_items']['Row']
+export type StoreFooter = Database['public']['Tables']['store_footer']['Row']
+export type StoreFooterLink =
+  Database['public']['Tables']['store_footer_links']['Row']
 export type ShopPageHeader =
   Database['public']['Tables']['shop_page_header']['Row']
 export type HomeCatalogSection =

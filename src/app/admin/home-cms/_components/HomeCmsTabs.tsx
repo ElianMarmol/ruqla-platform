@@ -13,12 +13,18 @@ import type {
   StoreSettings,
   StoreTopBar,
   StoreTopBarItem,
+  StoreTrustFeatures,
+  StoreTrustFeaturesItem,
+  StoreFooter,
+  StoreFooterLink,
 } from '@/types';
 
 import CatalogSectionPanel from './CatalogSectionPanel';
 import ShopHeaderSettings from './ShopHeaderSettings';
 import StoreMenuPanel from './StoreMenuPanel';
 import TopBarPanel from './TopBarPanel';
+import TrustFeaturesPanel from './TrustFeaturesPanel';
+import FooterPanel from './FooterPanel';
 import HeroBannersPanel from './HeroBannersPanel';
 import PartnerBrandsPanel from './PartnerBrandsPanel';
 import PromoBannersPanel from './PromoBannersPanel';
@@ -36,6 +42,12 @@ type HomeCmsTabsProps = {
   topBarSection: StoreTopBar;
   topBarItems: StoreTopBarItem[];
   topBarTableReady: boolean;
+  trustFeaturesSection: StoreTrustFeatures;
+  trustFeaturesItems: StoreTrustFeaturesItem[];
+  trustFeaturesTableReady: boolean;
+  footerSection: StoreFooter;
+  footerLinks: StoreFooterLink[];
+  footerTableReady: boolean;
   storeSettings: StoreSettings;
   navLinks: StoreNavLink[];
   menuSettingsReady: boolean;
@@ -54,6 +66,12 @@ export default function HomeCmsTabs({
   topBarSection,
   topBarItems,
   topBarTableReady,
+  trustFeaturesSection,
+  trustFeaturesItems,
+  trustFeaturesTableReady,
+  footerSection,
+  footerLinks,
+  footerTableReady,
   storeSettings,
   navLinks,
   menuSettingsReady,
@@ -66,6 +84,8 @@ export default function HomeCmsTabs({
         <TabsTrigger value="brands">Marcas</TabsTrigger>
         <TabsTrigger value="menu">Menú y WhatsApp</TabsTrigger>
         <TabsTrigger value="topbar">Barra superior</TabsTrigger>
+        <TabsTrigger value="trust">Beneficios portada</TabsTrigger>
+        <TabsTrigger value="footer">Footer</TabsTrigger>
         <TabsTrigger value="catalog">Accesos catálogo</TabsTrigger>
         <TabsTrigger value="shop">Encabezado tienda</TabsTrigger>
       </TabsList>
@@ -105,6 +125,26 @@ export default function HomeCmsTabs({
             section={topBarSection}
             items={topBarItems}
             tablesReady={topBarTableReady}
+          />
+        </section>
+      </TabsContent>
+
+      <TabsContent value="trust" className="mt-6">
+        <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <TrustFeaturesPanel
+            section={trustFeaturesSection}
+            items={trustFeaturesItems}
+            tablesReady={trustFeaturesTableReady}
+          />
+        </section>
+      </TabsContent>
+
+      <TabsContent value="footer" className="mt-6">
+        <section className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <FooterPanel
+            section={footerSection}
+            links={footerLinks}
+            tablesReady={footerTableReady}
           />
         </section>
       </TabsContent>

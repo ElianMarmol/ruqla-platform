@@ -7,6 +7,7 @@ import {
   fetchPublicNavLinks,
   fetchPublicStoreSettings,
 } from "@/lib/store-settings-queries";
+import { fetchPublicStoreFooter } from "@/lib/store-footer-queries";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +33,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [storeSettings, navLinks] = await Promise.all([
+  const [storeSettings, navLinks, storeFooter] = await Promise.all([
     fetchPublicStoreSettings(),
     fetchPublicNavLinks(),
+    fetchPublicStoreFooter(),
   ]);
 
   return (
@@ -47,6 +49,8 @@ export default async function RootLayout({
           <StoreChrome
             topBar={<StoreTopBarServer />}
             navLinks={navLinks}
+            footerSection={storeFooter.section}
+            footerLinks={storeFooter.links}
           >
             {children}
           </StoreChrome>

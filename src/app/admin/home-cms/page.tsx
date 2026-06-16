@@ -15,10 +15,16 @@ import {
   fetchStoreSettings,
   fetchStoreTopBarItems,
   fetchStoreTopBarSection,
+  fetchStoreTrustFeaturesItems,
+  fetchStoreTrustFeaturesSection,
+  fetchStoreFooterLinks,
+  fetchStoreFooterSection,
   homeCatalogTablesExist,
   shopPageHeaderTableExists,
   storeSettingsTablesExist,
   storeTopBarTablesExist,
+  storeTrustFeaturesTablesExist,
+  storeFooterTablesExist,
 } from './lib/queries';
 
 export const metadata = {
@@ -40,6 +46,10 @@ export default async function HomeCmsPage() {
       shopPageHeader,
       topBarTableReady,
       topBarSection,
+      trustFeaturesTableReady,
+      trustFeaturesSection,
+      footerTableReady,
+      footerSection,
       storeSettings,
       menuSettingsReady,
     ] = await Promise.all([
@@ -52,15 +62,21 @@ export default async function HomeCmsPage() {
       fetchShopPageHeader(),
       storeTopBarTablesExist(),
       fetchStoreTopBarSection(),
+      storeTrustFeaturesTablesExist(),
+      fetchStoreTrustFeaturesSection(),
+      storeFooterTablesExist(),
+      fetchStoreFooterSection(),
       fetchStoreSettings(),
       storeSettingsTablesExist(),
     ]);
 
-    const [catalogSection, catalogCards, topBarItems, navLinks] =
+    const [catalogSection, catalogCards, topBarItems, trustFeaturesItems, footerLinks, navLinks] =
       await Promise.all([
         fetchHomeCatalogSection(),
         fetchHomeCatalogCards(),
         fetchStoreTopBarItems(),
+        fetchStoreTrustFeaturesItems(),
+        fetchStoreFooterLinks(),
         fetchStoreNavLinks(),
       ]);
 
@@ -79,7 +95,7 @@ export default async function HomeCmsPage() {
                 </h1>
                 <p className="text-muted-foreground font-body mt-2 max-w-2xl">
                   Gestioná el carrusel Hero, banners, marcas, accesos al catálogo,
-                  barra superior, menú, WhatsApp y encabezado de la tienda.
+                  barra superior, beneficios de portada, footer, menú, WhatsApp y encabezado de la tienda.
                 </p>
               </div>
             </div>
@@ -98,6 +114,12 @@ export default async function HomeCmsPage() {
             topBarSection={topBarSection}
             topBarItems={topBarItems}
             topBarTableReady={topBarTableReady}
+            trustFeaturesSection={trustFeaturesSection}
+            trustFeaturesItems={trustFeaturesItems}
+            trustFeaturesTableReady={trustFeaturesTableReady}
+            footerSection={footerSection}
+            footerLinks={footerLinks}
+            footerTableReady={footerTableReady}
             storeSettings={storeSettings}
             navLinks={navLinks}
             menuSettingsReady={menuSettingsReady}

@@ -18,14 +18,22 @@ export type PaginatedOrdersResult = {
   currentPage: number;
 };
 
-/** Métricas globales (sin filtros de tabla). Solo completed suma a facturación. */
-export async function fetchAdminMetrics(): Promise<AdminMetrics> {
+/** Métricas del panel. La facturación respeta el rango de fechas indicado. */
+export async function fetchAdminMetrics(billingRange: {
+  dateFrom: string;
+  dateTo: string;
+}): Promise<AdminMetrics> {
   const [
     { data: completedRows, error: completedError },
     { count: pendingCount, error: pendingError },
     { count: totalCount, error: totalError },
   ] = await Promise.all([
-    supabaseService.from('orders').select('total').eq('status', 'completed'),
+    supabaseService
+      .from('orders')
+      .select('total')
+      .eq('status', 'completed')
+      .gte('created_at', startOfDayIso(billingRange.dateFrom))
+      .lte('created_at', endOfDayIso(billingRange.dateTo)),
     supabaseService
       .from('orders')
       .select('*', { count: 'exact', head: true })
