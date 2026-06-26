@@ -9,7 +9,7 @@ import { isMissingSchemaError } from '@/lib/supabase-errors';
 import { uploadImageToBucket } from '@/lib/storage-utils';
 
 const PRODUCTS_BUCKET = 'products';
-const MAX_PRODUCT_IMAGES = 8;
+const MAX_PRODUCT_IMAGES = 15;
 
 async function requireAdminUser() {
   const supabaseAuth = await createClient();

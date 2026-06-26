@@ -20,7 +20,7 @@ import type { Category } from '@/types';
 import { createProductAction, updateProductAction } from '../actions';
 import type { AdminProductRow } from '../lib/queries';
 
-const MAX_IMAGES = 8;
+const MAX_IMAGES = 15;
 
 type ProductFormDialogProps = {
   open: boolean;
