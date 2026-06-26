@@ -61,10 +61,7 @@ export async function fetchPublicHomeCatalog(): Promise<PublicHomeCatalog> {
 
     return {
       section,
-      cards:
-        cards && cards.length > 0
-          ? (cards as HomeCatalogCard[])
-          : DEFAULT_HOME_CATALOG_CARDS,
+      cards: (cards ?? []) as HomeCatalogCard[],
     };
   } catch (err) {
     console.error('[home_catalog] fetch failed:', err);

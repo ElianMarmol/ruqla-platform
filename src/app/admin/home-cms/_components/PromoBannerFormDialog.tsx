@@ -1,10 +1,16 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { LoaderCircle, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
+import {
+  PROMO_DESTINATION_NONE,
+  promoUrlToDestination,
+} from '@/lib/promo-banner-destinations';
+import { PRODUCT_COLLECTIONS } from '@/lib/product-collections';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,11 +23,13 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { PromoBanner } from '@/types';
+import type { Category, PromoBanner } from '@/types';
 
 import {
   createPromoBannerAction,
@@ -51,7 +59,24 @@ export default function PromoBannerFormDialog({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [fileName, setFileName] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isPending, startTransition] = useTransition();
+
+  const defaultDestination = useMemo(
+    () => promoUrlToDestination(banner?.link_url),
+    [banner?.link_url]
+  );
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .order('name');
+      if (data) setCategories(data as Category[]);
+    };
+    void loadCategories();
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -168,18 +193,68 @@ export default function PromoBannerFormDialog({
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <label htmlFor="promo-link" className={labelClass}>
-                Link URL
+              <label htmlFor="promo-destination" className={labelClass}>
+                Destino del enlace
               </label>
-              <Input
-                id="promo-link"
-                name="link_url"
-                type="url"
-                defaultValue={banner?.link_url ?? ''}
+              <Select
+                key={`${banner?.id ?? 'new-promo'}-${defaultDestination}`}
+                name="link_destination"
+                defaultValue={defaultDestination}
                 disabled={isPending}
-                className="py-5"
-                placeholder="https://..."
-              />
+                items={{
+                  [PROMO_DESTINATION_NONE]: 'Sin enlace',
+                  ...Object.fromEntries(
+                    Object.values(PRODUCT_COLLECTIONS).map((collection) => [
+                      `collection:${collection.slug}`,
+                      collection.label,
+                    ])
+                  ),
+                  ...Object.fromEntries(
+                    categories.map((category) => [
+                      `category:${category.slug}`,
+                      category.name,
+                    ])
+                  ),
+                }}
+              >
+                <SelectTrigger
+                  id="promo-destination"
+                  className="w-full h-10 data-[size=default]:h-10"
+                >
+                  <SelectValue placeholder="Elegí a dónde lleva el banner" />
+                </SelectTrigger>
+                <SelectContent className="bg-card text-foreground border-border/60 max-h-72">
+                  <SelectItem value={PROMO_DESTINATION_NONE}>Sin enlace</SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>Colecciones</SelectLabel>
+                    {Object.values(PRODUCT_COLLECTIONS).map((collection) => (
+                      <SelectItem
+                        key={collection.slug}
+                        value={`collection:${collection.slug}`}
+                      >
+                        {collection.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  {categories.length > 0 ? (
+                    <SelectGroup>
+                      <SelectLabel>Categorías</SelectLabel>
+                      {categories.map((category) => (
+                        <SelectItem
+                          key={category.id}
+                          value={`category:${category.slug}`}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ) : null}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground font-body">
+                Los más vendidos muestran productos marcados como destacados en
+                el admin de productos.
+              </p>
             </div>
 
             <div className="space-y-2 sm:col-span-2">

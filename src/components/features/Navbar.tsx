@@ -73,16 +73,16 @@ export default function Navbar({ topBar, navLinks = [] }: NavbarProps) {
       {topBar}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          <BrandLogo className="h-14 md:h-[3.75rem]" />
+        <div className="flex items-center justify-between h-[var(--store-nav-row-height)] gap-3">
+          <BrandLogo className="h-9 md:h-10" />
 
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
             <Link
               href="/"
               className={cn(
-                'font-sans text-xs font-bold tracking-wide transition-colors',
+                'font-sans text-[11px] font-bold tracking-wide transition-colors',
                 pathname === '/'
-                  ? 'text-primary underline underline-offset-8 decoration-2'
+                  ? 'text-primary underline underline-offset-4 decoration-2'
                   : 'text-foreground hover:text-primary'
               )}
             >
@@ -91,23 +91,23 @@ export default function Navbar({ topBar, navLinks = [] }: NavbarProps) {
             <Link
               href="/productos"
               className={cn(
-                'font-sans text-xs font-bold tracking-wide transition-colors flex items-center gap-0.5',
+                'font-sans text-[11px] font-bold tracking-wide transition-colors flex items-center gap-0.5',
                 isProductosActive
-                  ? 'text-primary underline underline-offset-8 decoration-2'
+                  ? 'text-primary underline underline-offset-4 decoration-2'
                   : 'text-foreground hover:text-primary'
               )}
             >
               PRODUCTOS
-              <ChevronDown className="size-3.5 opacity-60" />
+              <ChevronDown className="size-3 opacity-60" />
             </Link>
             {navLinks.map((link) => (
               <Link
                 key={link.id}
                 href={getNavLinkHref(link)}
                 className={cn(
-                  'font-sans text-xs font-bold tracking-wide transition-colors',
+                  'font-sans text-[11px] font-bold tracking-wide transition-colors',
                   isNavLinkActive(link)
-                    ? 'text-primary underline underline-offset-8 decoration-2'
+                    ? 'text-primary underline underline-offset-4 decoration-2'
                     : 'text-foreground hover:text-primary'
                 )}
               >
@@ -116,50 +116,50 @@ export default function Navbar({ topBar, navLinks = [] }: NavbarProps) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               className="text-foreground hover:text-primary hover:bg-accent lg:hidden"
               onClick={() => router.push('/productos')}
               aria-label="Buscar productos"
             >
-              <Search className="size-5" />
+              <Search className="size-4" />
             </Button>
 
             <form
               onSubmit={handleSearch}
-              className="hidden md:flex items-center max-w-[200px] lg:max-w-xs"
+              className="hidden md:flex items-center max-w-[180px] lg:max-w-[11rem]"
             >
               <Input
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar..."
-                className="h-9 rounded-full border-border bg-muted/50 text-sm"
+                className="h-8 rounded-full border-border bg-muted/50 text-xs px-3"
               />
             </form>
 
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               className="text-foreground hover:text-primary hover:bg-accent"
               aria-label="Mi cuenta"
             >
-              <User className="size-5" />
+              <User className="size-4" />
             </Button>
 
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               className="relative text-foreground hover:text-primary hover:bg-accent"
               onClick={openCart}
               aria-label="Carrito"
             >
-              <ShoppingCart className="size-5" />
+              <ShoppingCart className="size-4" />
               {isCartHydrated && cartCount > 0 ? (
                 <Badge className="absolute -top-1 -right-1 size-5 min-w-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-2 border-background">
                   {cartCount}

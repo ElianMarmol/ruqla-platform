@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { isCategoryUuid, resolveCategorySlug } from '@/lib/category-resolve';
 import {
+  isProductCollectionSlug,
+  productHasDiscount,
+} from '@/lib/product-collections';
+import {
   PRODUCT_SELECT_BY_CATEGORY,
   PRODUCT_SELECT_LEGACY,
   isProductRelationshipError,
@@ -48,8 +52,43 @@ export async function GET(request: Request) {
     let categoryParam =
       searchParams.get('category') || searchParams.get('category_id');
     const search = searchParams.get('search');
+    const collection = searchParams.get('collection');
     const include_empty_stock =
       searchParams.get('include_empty_stock') !== 'false';
+
+    if (collection && isProductCollectionSlug(collection)) {
+      let query = supabase.from('products').select(PRODUCT_SELECT_LEGACY);
+
+      if (!include_empty_stock) {
+        query = query.gt('stock', 0);
+      }
+
+      if (search) {
+        query = query.ilike('name', `%${search}%`);
+      }
+
+      if (collection === 'mas-vendidos') {
+        query = query.eq('is_featured', true);
+      } else {
+        query = query.not('original_price', 'is', null);
+      }
+
+      const { data, error } = await query
+        .order('created_at', { ascending: false })
+        .range(0, 99);
+
+      if (error) {
+        console.error('[api/products] Supabase error:', error);
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+
+      const products =
+        collection === 'descuentos'
+          ? (data ?? []).filter(productHasDiscount)
+          : (data ?? []);
+
+      return NextResponse.json({ data: products.slice(0, 50) }, { status: 200 });
+    }
 
     if (categoryParam && !isCategoryUuid(categoryParam)) {
       const { data: categories } = await supabase

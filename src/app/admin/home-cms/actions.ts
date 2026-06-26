@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { refresh } from 'next/cache';
 
+import { promoDestinationToUrl } from '@/lib/promo-banner-destinations';
 import { createClient } from '@/lib/supabase-server';
 import { supabaseService } from '@/lib/supabase-service';
 import { uploadImageToBucket } from '@/lib/storage-utils';
@@ -205,7 +206,7 @@ const PROMO_SIZES = ['full', 'half'] as const;
 function parsePromoBannerFields(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
   const subtitle = String(formData.get('subtitle') ?? '').trim() || null;
-  const link_url = String(formData.get('link_url') ?? '').trim() || null;
+  const link_destination = String(formData.get('link_destination') ?? '').trim();
   const size = String(formData.get('size') ?? '').trim();
 
   if (!title) {
@@ -214,6 +215,11 @@ function parsePromoBannerFields(formData: FormData) {
 
   if (!PROMO_SIZES.includes(size as (typeof PROMO_SIZES)[number])) {
     throw new Error('Seleccioná un tamaño válido.');
+  }
+
+  const link_url = promoDestinationToUrl(link_destination);
+  if (link_destination && link_destination !== '__none__' && !link_url) {
+    throw new Error('Seleccioná un destino válido para el enlace.');
   }
 
   return { title, subtitle, link_url, size };

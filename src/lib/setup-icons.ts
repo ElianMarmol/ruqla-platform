@@ -7,6 +7,7 @@ import {
   Headphones,
   Monitor,
   Smartphone,
+  Watch,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ export const SETUP_ICON_OPTIONS = [
   { value: 'zap', label: 'Rayo / Cargadores' },
   { value: 'monitor', label: 'Monitor / PC' },
   { value: 'smartphone', label: 'Celular' },
+  { value: 'watch', label: 'Reloj / Smartwatches' },
   { value: 'headphones', label: 'Auriculares' },
   { value: 'cable', label: 'Cables' },
   { value: 'cpu', label: 'Procesador' },
@@ -28,6 +30,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   zap: Zap,
   monitor: Monitor,
   smartphone: Smartphone,
+  watch: Watch,
   headphones: Headphones,
   cable: Cable,
   cpu: Cpu,

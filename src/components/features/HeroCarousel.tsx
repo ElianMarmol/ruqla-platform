@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Award, ShieldCheck, Truck } from 'lucide-react';
 
@@ -7,6 +8,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  useCarousel,
 } from '@/components/ui/carousel';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -149,6 +151,88 @@ function HeroSlide({
   );
 }
 
+function HeroCarouselDots({ count }: { count: number }) {
+  const { api } = useCarousel();
+  const [selected, setSelected] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevIndexRef = useRef(0);
+  const isInitializedRef = useRef(false);
+
+  const scheduleHide = useCallback(() => {
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    hideTimeoutRef.current = setTimeout(() => setVisible(false), 2500);
+  }, []);
+
+  const showDots = useCallback(() => {
+    setVisible(true);
+    scheduleHide();
+  }, [scheduleHide]);
+
+  const onSelect = useCallback(() => {
+    if (!api) return;
+
+    const index = api.selectedScrollSnap();
+    if (isInitializedRef.current && index !== prevIndexRef.current) {
+      showDots();
+    }
+
+    isInitializedRef.current = true;
+    prevIndexRef.current = index;
+    setSelected(index);
+  }, [api, showDots]);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!api || count <= 1) return;
+
+    onSelect();
+    api.on('select', onSelect);
+    api.on('reInit', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+      api.off('reInit', onSelect);
+    };
+  }, [api, count, onSelect]);
+
+  if (count <= 1) return null;
+
+  return (
+    <div
+      className={cn(
+        'absolute inset-x-0 bottom-0 z-10 flex justify-center gap-1.5 bg-gradient-to-t from-muted/80 via-muted/30 to-transparent px-4 pb-2 pt-4 transition-opacity duration-300 sm:pb-2.5',
+        visible ? 'opacity-100' : 'pointer-events-none opacity-0'
+      )}
+    >
+      {Array.from({ length: count }, (_, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => {
+            api?.scrollTo(i);
+            showDots();
+          }}
+          className={cn(
+            'size-1.5 rounded-full transition-colors',
+            i === selected
+              ? 'bg-primary scale-110'
+              : 'bg-foreground/25 hover:bg-foreground/40'
+          )}
+          aria-label={`Ir al banner ${i + 1}`}
+          aria-current={i === selected ? 'true' : undefined}
+          tabIndex={visible ? 0 : -1}
+        />
+      ))}
+    </div>
+  );
+}
+
 const FALLBACK_BANNER: MainBanner = {
   id: 'fallback',
   title: 'Accesorios que van con vos.',
@@ -175,38 +259,27 @@ export default function HeroCarousel({ banners, compact }: HeroCarouselProps) {
     <section
       className={cn(
         'home-hero shrink-0 px-4 md:px-6 lg:px-8',
-        compact ? 'pt-2 pb-1 lg:flex-[1.15] lg:min-h-0' : 'pt-5 pb-3'
+        compact ? 'pt-2 pb-0 lg:flex-[1.15] lg:min-h-0' : 'pt-5 pb-3'
       )}
     >
       <div className="max-w-7xl mx-auto h-full flex flex-col min-h-0">
         <Carousel
-          className="w-full flex-1 min-h-0 flex flex-col"
+          className="relative w-full flex-1 min-h-0 flex flex-col"
           opts={{
             loop: slides.length > 1,
           }}
         >
-          <CarouselContent className="flex-1 min-h-0 -ml-0">
-            {slides.map((banner) => (
-              <CarouselItem key={banner.id} className="pl-0 basis-full">
-                <HeroSlide banner={banner} compact={compact} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-
-          {slides.length > 1 ? (
-            <div className="flex justify-center gap-1.5 mt-2 shrink-0">
-              {slides.map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    'size-1.5 rounded-full',
-                    i === 0 ? 'bg-primary' : 'bg-border'
-                  )}
-                  aria-hidden
-                />
+          <div className="relative flex-1 min-h-0">
+            <CarouselContent className="h-full min-h-0 -ml-0">
+              {slides.map((banner) => (
+                <CarouselItem key={banner.id} className="pl-0 basis-full">
+                  <HeroSlide banner={banner} compact={compact} />
+                </CarouselItem>
               ))}
-            </div>
-          ) : null}
+            </CarouselContent>
+
+            <HeroCarouselDots count={slides.length} />
+          </div>
         </Carousel>
 
         {compact ? (

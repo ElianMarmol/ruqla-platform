@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { isSameCategory } from '@/lib/category-resolve';
+import { getProductCollectionLabel } from '@/lib/product-collections';
 import ProductCard from './ProductCard';
 import { supabase } from '@/lib/supabase';
 import { Category } from '@/types';
@@ -21,6 +22,7 @@ export default function CatalogView() {
   // Extraer parámetros actuales de la URL
   const currentSearch = searchParams.get('search') || '';
   const currentCategory = searchParams.get('category') || searchParams.get('category_id') || '';
+  const currentCollection = searchParams.get('collection') || '';
 
   // 1. Cargar las categorías base directamente para armar los filtros
   useEffect(() => {
@@ -39,7 +41,8 @@ export default function CatalogView() {
       try {
         const query = new URLSearchParams();
         if (currentSearch) query.set('search', currentSearch);
-        if (currentCategory) query.set('category', currentCategory);
+        if (currentCollection) query.set('collection', currentCollection);
+        else if (currentCategory) query.set('category', currentCategory);
         query.set('include_empty_stock', 'true');
 
         const res = await fetch(`/api/products?${query.toString()}`);
@@ -68,7 +71,7 @@ export default function CatalogView() {
     };
 
     fetchProducts();
-  }, [currentSearch, currentCategory]);
+  }, [currentSearch, currentCategory, currentCollection]);
 
   // Manejar click en una categoría
   const handleCategoryClick = (categoryId: string) => {
@@ -77,6 +80,7 @@ export default function CatalogView() {
     // Si clickeamos la que ya está activa, la quitamos (toggle)
     params.delete('category');
     params.delete('category_id');
+    params.delete('collection');
     if (categoryId && categoryId !== currentCategory) {
       params.set('category', categoryId);
     }
@@ -96,10 +100,10 @@ export default function CatalogView() {
               <button
                 type="button"
                 onClick={() => handleCategoryClick('')}
-                className={`text-left w-full transition-colors flex items-center justify-between group ${!currentCategory ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`text-left w-full transition-colors flex items-center justify-between group ${!currentCategory && !currentCollection ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <span>Toda la colección</span>
-                {!currentCategory && (
+                {!currentCategory && !currentCollection && (
                   <span className="size-2 rounded-full bg-primary shrink-0" />
                 )}
               </button>
@@ -132,12 +136,17 @@ export default function CatalogView() {
       {/* Main Content - Grilla de Productos */}
       <main className="flex-1">
         {/* Cabecera de resultados */}
-        {(currentSearch || currentCategory) && (
+        {(currentSearch || currentCategory || currentCollection) && (
           <div className="mb-6 flex flex-wrap items-center gap-2 font-body text-muted-foreground text-sm">
             Filtros activos:
             {currentSearch && (
               <span className="px-3 py-1 bg-muted rounded-full text-foreground border border-border">
                 Búsqueda: &quot;{currentSearch}&quot;
+              </span>
+            )}
+            {currentCollection && getProductCollectionLabel(currentCollection) && (
+              <span className="px-3 py-1 bg-muted rounded-full text-foreground border border-border">
+                {getProductCollectionLabel(currentCollection)}
               </span>
             )}
             {currentCategory &&

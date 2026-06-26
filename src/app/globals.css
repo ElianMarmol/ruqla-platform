@@ -103,6 +103,13 @@
   --sidebar-accent-foreground: #18181b;
   --sidebar-border: #e4e4e7;
   --sidebar-ring: var(--color-brand-green);
+
+  /* Altura del chrome superior (barra verde + nav + borde) */
+  --store-top-bar-height: 1.375rem;
+  --store-nav-row-height: 3rem;
+  --store-header-height: calc(
+    var(--store-top-bar-height) + var(--store-nav-row-height) + 1px
+  );
 }
 
 /* Admin — tema oscuro */
@@ -228,10 +235,19 @@ body {
     zoom: 1.25;
     justify-content: space-between;
     gap: 0.625rem;
+    min-height: calc((100dvh - var(--store-header-height)) / 1.25);
+    max-height: calc(100dvh - var(--store-header-height));
+    overflow: hidden;
   }
 
   .home-landing > section {
     flex-shrink: 1;
     min-height: 0;
+  }
+
+  .home-landing > section.home-trust,
+  .home-landing > section.home-promo {
+    flex: 0 0 auto;
+    min-height: unset;
   }
 }

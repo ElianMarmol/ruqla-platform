@@ -41,7 +41,7 @@ export default function StoreChrome({
     <CartProvider>
       <Suspense
         fallback={
-          <header className="sticky top-0 z-50 h-16 bg-background border-b border-border" />
+          <header className="sticky top-0 z-50 h-[var(--store-header-height)] bg-background border-b border-border" />
         }
       >
         <Navbar topBar={topBar} navLinks={navLinks} />
