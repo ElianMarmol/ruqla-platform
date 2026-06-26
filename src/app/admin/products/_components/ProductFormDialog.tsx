@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { LoaderCircle, UploadCloud } from 'lucide-react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { LoaderCircle, UploadCloud, X } from 'lucide-react';
 
+import { getProductCategoryIds } from '@/lib/product-category-utils';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -14,26 +15,24 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import type { Category } from '@/types';
 
-import {
-  createProductAction,
-  updateProductAction,
-} from '../actions';
+import { createProductAction, updateProductAction } from '../actions';
 import type { AdminProductRow } from '../lib/queries';
+
+const MAX_IMAGES = 8;
 
 type ProductFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: AdminProductRow | null;
   categories: Category[];
+};
+
+type LocalPreview = {
+  id: string;
+  url: string;
+  file?: File;
 };
 
 export default function ProductFormDialog({
@@ -43,62 +42,106 @@ export default function ProductFormDialog({
   categories,
 }: ProductFormDialogProps) {
   const isEditing = Boolean(product);
-  const existingImage = product?.images?.[0] ?? null;
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [fileName, setFileName] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [keptImages, setKeptImages] = useState<string[]>([]);
+  const [newPreviews, setNewPreviews] = useState<LocalPreview[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
+  const totalImages = keptImages.length + newPreviews.length;
+
   useEffect(() => {
-    if (open) {
-      setErrorMsg(null);
-      setFileName('');
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
+    if (!open) return;
+
+    setErrorMsg(null);
+    setKeptImages(product?.images ?? []);
+    setNewPreviews((prev) => {
+      prev.forEach((item) => {
+        if (item.file) URL.revokeObjectURL(item.url);
       });
-    }
+      return [];
+    });
+    setSelectedCategoryIds(
+      product ? getProductCategoryIds(product) : []
+    );
   }, [open, product]);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      setFileName('');
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
+      newPreviews.forEach((item) => {
+        if (item.file) URL.revokeObjectURL(item.url);
       });
+    };
+  }, [newPreviews]);
+
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategoryIds((current) =>
+      current.includes(categoryId)
+        ? current.filter((id) => id !== categoryId)
+        : [...current, categoryId]
+    );
+  };
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
+
+    if (!files.length) return;
+
+    const availableSlots = MAX_IMAGES - keptImages.length - newPreviews.length;
+    if (availableSlots <= 0) {
+      setErrorMsg(`Podés subir hasta ${MAX_IMAGES} imágenes por producto.`);
       return;
     }
 
-    setFileName(file.name);
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
-    });
+    const nextFiles = files.slice(0, availableSlots);
+    const nextPreviews = nextFiles.map((file) => ({
+      id: `${file.name}-${file.lastModified}-${Math.random()}`,
+      url: URL.createObjectURL(file),
+      file,
+    }));
+
+    setNewPreviews((current) => [...current, ...nextPreviews]);
+    setErrorMsg(null);
   };
 
-  const displayPreview = previewUrl ?? (isEditing ? existingImage : null);
+  const removeKeptImage = (url: string) => {
+    setKeptImages((current) => current.filter((image) => image !== url));
+  };
+
+  const removeNewPreview = (id: string) => {
+    setNewPreviews((current) => {
+      const target = current.find((item) => item.id === id);
+      if (target?.file) URL.revokeObjectURL(target.url);
+      return current.filter((item) => item.id !== id);
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg(null);
 
+    if (totalImages === 0) {
+      setErrorMsg('Agregá al menos una imagen del producto.');
+      return;
+    }
+
     const form = e.currentTarget;
     const formData = new FormData(form);
+    formData.set('kept_images', JSON.stringify(keptImages));
+
+    selectedCategoryIds.forEach((categoryId) => {
+      formData.append('category_ids', categoryId);
+    });
+
+    newPreviews.forEach((preview) => {
+      if (preview.file) {
+        formData.append('images', preview.file);
+      }
+    });
 
     if (isEditing && product) {
       formData.set('product_id', product.id);
-      const file = formData.get('image');
-      if (!(file instanceof File) || file.size === 0) {
-        formData.set('keep_existing_image', 'true');
-      }
     }
 
     startTransition(async () => {
@@ -120,6 +163,14 @@ export default function ProductFormDialog({
   const labelClass =
     'text-xs font-semibold uppercase tracking-wider text-muted-foreground';
 
+  const sortedCategories = useMemo(
+    () =>
+      [...categories].sort((a, b) =>
+        a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })
+      ),
+    [categories]
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border/60">
@@ -128,9 +179,7 @@ export default function ProductFormDialog({
             {isEditing ? 'Editar producto' : 'Nuevo producto'}
           </DialogTitle>
           <DialogDescription className="font-body">
-            {isEditing
-              ? 'Actualizá los datos y la imagen del catálogo.'
-              : 'Completá los campos para publicar en el catálogo.'}
+            Varias fotos y varias categorías por producto.
           </DialogDescription>
         </DialogHeader>
 
@@ -151,33 +200,43 @@ export default function ProductFormDialog({
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <label htmlFor="category_id" className={labelClass}>
-                Categoría
-              </label>
-              <Select
-                key={product?.id ?? 'new'}
-                name="category_id"
-                defaultValue={product?.category_id ?? null}
-                disabled={isPending}
-                items={Object.fromEntries(
-                  categories.map((c) => [c.id, c.name])
-                )}
-              >
-                <SelectTrigger
-                  id="category_id"
-                  className="w-full h-10 data-[size=default]:h-10"
-                >
-                  <SelectValue placeholder="Sin categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={null}>Sin categoría</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <span className={labelClass}>Categorías</span>
+              {sortedCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground font-body">
+                  Creá categorías antes de asignar productos.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-xl border border-border/60 bg-muted/20 p-3">
+                  {sortedCategories.map((category) => {
+                    const checked = selectedCategoryIds.includes(category.id);
+                    return (
+                      <label
+                        key={category.id}
+                        className={cn(
+                          'flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer transition-colors',
+                          checked
+                            ? 'border-primary/40 bg-primary/10'
+                            : 'border-border/50 bg-background hover:bg-muted/40'
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={isPending}
+                          onChange={() => toggleCategory(category.id)}
+                          className="size-4 rounded border-border accent-primary"
+                        />
+                        <span className="text-sm font-body text-foreground">
+                          {category.name}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground font-body">
+                Marcá todas las secciones donde debería aparecer el producto.
+              </p>
             </div>
 
             <div className="space-y-2 sm:col-span-2">
@@ -246,58 +305,96 @@ export default function ProductFormDialog({
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <span id="image-label" className={labelClass}>
-                Imagen del producto
-              </span>
+              <div className="flex items-center justify-between gap-2">
+                <span id="images-label" className={labelClass}>
+                  Imágenes del producto
+                </span>
+                <span className="text-xs text-muted-foreground font-body">
+                  {totalImages}/{MAX_IMAGES}
+                </span>
+              </div>
+
+              {(keptImages.length > 0 || newPreviews.length > 0) && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {keptImages.map((url) => (
+                    <div
+                      key={url}
+                      className="relative overflow-hidden rounded-lg border border-border/60 bg-muted p-2"
+                    >
+                      <img
+                        src={url}
+                        alt="Imagen del producto"
+                        className="h-24 w-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeKeptImage(url)}
+                        disabled={isPending}
+                        className="absolute top-1 right-1 rounded-full bg-background/90 p-1 text-muted-foreground hover:text-destructive"
+                        aria-label="Quitar imagen"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {newPreviews.map((preview) => (
+                    <div
+                      key={preview.id}
+                      className="relative overflow-hidden rounded-lg border border-primary/30 bg-primary/5 p-2"
+                    >
+                      <img
+                        src={preview.url}
+                        alt="Nueva imagen"
+                        className="h-24 w-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeNewPreview(preview.id)}
+                        disabled={isPending}
+                        className="absolute top-1 right-1 rounded-full bg-background/90 p-1 text-muted-foreground hover:text-destructive"
+                        aria-label="Quitar imagen nueva"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <input
-                id="image"
-                name="image"
+                id="images"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
-                disabled={isPending}
+                multiple
+                disabled={isPending || totalImages >= MAX_IMAGES}
                 className="hidden"
-                onChange={handleImageChange}
-                aria-labelledby="image-label"
+                onChange={handleImagesChange}
+                aria-labelledby="images-label"
               />
               <label
-                htmlFor="image"
+                htmlFor="images"
                 className={cn(
-                  'flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/40 p-6 text-center transition-colors',
+                  'flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/40 p-6 text-center transition-colors',
                   'hover:border-primary/50 hover:bg-primary/5',
                   'focus-within:border-primary focus-within:bg-primary/5 focus-within:ring-3 focus-within:ring-ring/50',
-                  isPending && 'pointer-events-none opacity-50'
+                  (isPending || totalImages >= MAX_IMAGES) &&
+                    'pointer-events-none opacity-50'
                 )}
               >
-                {displayPreview ? (
-                  <div className="relative overflow-hidden rounded-lg border border-border/60 bg-muted p-2 shadow-inner">
-                    <img
-                      src={displayPreview}
-                      alt={fileName || product?.name || 'Vista previa'}
-                      className="h-24 w-24 object-contain sm:h-28 sm:w-28"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
-                    <UploadCloud className="size-8 text-primary" strokeWidth={1.5} />
-                  </div>
-                )}
+                <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+                  <UploadCloud className="size-7 text-primary" strokeWidth={1.5} />
+                </div>
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-foreground font-body">
-                    {fileName || 'Haz clic para subir imagen'}
+                    {totalImages >= MAX_IMAGES
+                      ? 'Límite de imágenes alcanzado'
+                      : 'Agregar imágenes'}
                   </p>
                   <p className="text-xs text-muted-foreground font-body">
-                    {fileName
-                      ? 'Hacé clic para cambiar el archivo'
-                      : 'JPG, PNG, WebP o GIF · máx. 5 MB'}
+                    JPG, PNG, WebP o GIF · máx. 5 MB c/u
                   </p>
                 </div>
               </label>
-              {isEditing && existingImage && !fileName && (
-                <p className="text-xs text-muted-foreground font-body">
-                  Imagen actual del catálogo. Si no subís otra, se mantiene al
-                  guardar.
-                </p>
-              )}
             </div>
           </div>
 

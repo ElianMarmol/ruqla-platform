@@ -73,6 +73,23 @@ export interface Database {
           created_at?: string
         }
       }
+      product_categories: {
+        Row: {
+          product_id: string
+          category_id: string
+          created_at: string
+        }
+        Insert: {
+          product_id: string
+          category_id: string
+          created_at?: string
+        }
+        Update: {
+          product_id?: string
+          category_id?: string
+          created_at?: string
+        }
+      }
       promo_banners: {
         Row: {
           id: string
@@ -476,6 +493,8 @@ export interface Database {
 // Helper types for easier imports in components
 export type Category = Database['public']['Tables']['categories']['Row']
 export type Product = Database['public']['Tables']['products']['Row']
+export type ProductCategory =
+  Database['public']['Tables']['product_categories']['Row']
 export type Order = Database['public']['Tables']['orders']['Row']
 export type MainBanner = Database['public']['Tables']['main_banners']['Row']
 export type PromoBanner = Database['public']['Tables']['promo_banners']['Row']

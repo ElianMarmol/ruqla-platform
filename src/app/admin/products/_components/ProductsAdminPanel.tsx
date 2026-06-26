@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import type { AdminProductFilters } from '../lib/filters';
 import { productsAdminHref } from '../lib/filters';
 import type { AdminProductRow, PaginatedProductsResult } from '../lib/queries';
+import { getProductCategoryLabels } from '@/lib/product-category-utils';
 import CategoryManagerDialog from './CategoryManagerDialog';
 import ProductFormDialog from './ProductFormDialog';
 import ProductRowActions from './ProductRowActions';
@@ -131,9 +132,9 @@ export default function ProductsAdminPanel({
                     </td>
                     <td className="px-4 py-3">
                       <p className="font-bold text-foreground">{product.name}</p>
-                      {product.categories?.name && (
+                      {getProductCategoryLabels(product).length > 0 && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {product.categories.name}
+                          {getProductCategoryLabels(product).join(' · ')}
                         </p>
                       )}
                     </td>

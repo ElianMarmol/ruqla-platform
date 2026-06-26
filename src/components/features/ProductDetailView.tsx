@@ -53,10 +53,18 @@ export default function ProductDetailView({
     ? Object.entries(specs).filter(([, v]) => v != null && String(v).trim() !== '')
     : [];
 
-  const category = product.categories;
-  const categoryHref = category
-    ? `/productos?category=${encodeURIComponent(category.slug)}`
-    : '/productos';
+  const categoryLinks =
+    product.product_categories
+      ?.map((row) => row.categories)
+      .filter((cat): cat is NonNullable<typeof cat> => Boolean(cat)) ?? [];
+
+  const fallbackCategory = product.categories;
+  const displayCategories =
+    categoryLinks.length > 0
+      ? categoryLinks
+      : fallbackCategory
+        ? [fallbackCategory]
+        : [];
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
@@ -90,20 +98,24 @@ export default function ProductDetailView({
             >
               Tienda
             </Link>
-            {category ? (
-              <>
-                <ChevronRight
-                  className="size-3.5 shrink-0 opacity-50"
-                  aria-hidden
-                />
+            {displayCategories.map((category, index) => (
+              <span key={category.id} className="flex items-center gap-1.5">
+                {index === 0 ? (
+                  <ChevronRight
+                    className="size-3.5 shrink-0 opacity-50"
+                    aria-hidden
+                  />
+                ) : (
+                  <span className="text-muted-foreground/60">·</span>
+                )}
                 <Link
-                  href={categoryHref}
+                  href={`/productos?category=${encodeURIComponent(category.slug)}`}
                   className="hover:text-primary transition-colors"
                 >
                   {category.name}
                 </Link>
-              </>
-            ) : null}
+              </span>
+            ))}
             <ChevronRight className="size-3.5 shrink-0 opacity-50" aria-hidden />
             <span className="text-foreground font-medium line-clamp-1">
               {product.name}
@@ -180,13 +192,18 @@ export default function ProductDetailView({
 
           {/* Info */}
           <div className="flex flex-col">
-            {category ? (
-              <Link
-                href={categoryHref}
-                className="text-xs uppercase tracking-[0.2em] text-primary font-bold mb-3 hover:underline w-fit"
-              >
-                {category.name}
-              </Link>
+            {displayCategories.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {displayCategories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={`/productos?category=${encodeURIComponent(category.slug)}`}
+                    className="text-xs uppercase tracking-[0.2em] text-primary font-bold hover:underline"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
             ) : null}
 
             <h1 className="font-sans text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">

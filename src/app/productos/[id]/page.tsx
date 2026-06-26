@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import ProductDetailView from '@/components/features/ProductDetailView';
+import { getProductCategoryIds } from '@/lib/product-category-utils';
 import {
   fetchProductById,
   fetchRelatedProducts,
@@ -45,7 +46,7 @@ export default async function ProductoDetailPage({ params }: PageProps) {
   }
 
   const relatedProducts = await fetchRelatedProducts(
-    product.category_id,
+    getProductCategoryIds(product),
     product.id
   );
 

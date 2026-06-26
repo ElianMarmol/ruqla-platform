@@ -1,4 +1,6 @@
 import { supabaseService } from '@/lib/supabase-service';
+import type { ProductCategoryLink } from '@/lib/product-category-utils';
+import { isMissingSchemaError } from '@/lib/supabase-errors';
 import type { Category, Product } from '@/types';
 
 import { PRODUCTS_PAGE_SIZE } from '../constants';
@@ -7,6 +9,7 @@ import { getProductPaginationRange } from './filters';
 
 export type AdminProductRow = Product & {
   categories: { id: string; name: string; slug: string } | null;
+  product_categories?: ProductCategoryLink[] | null;
 };
 
 export type PaginatedProductsResult = {
@@ -47,7 +50,9 @@ export async function fetchPaginatedProducts(
 
   let dataQuery = supabaseService
     .from('products')
-    .select('*, categories(id, name, slug)');
+    .select(
+      '*, categories(id, name, slug), product_categories(category_id, categories(id, name, slug))'
+    );
 
   if (filters.search) {
     dataQuery = dataQuery.ilike('name', `%${filters.search}%`);
@@ -56,6 +61,23 @@ export async function fetchPaginatedProducts(
   const { data, error } = await dataQuery
     .order('created_at', { ascending: false })
     .range(from, to);
+
+  if (error && isMissingSchemaError(error)) {
+    const { data: fallbackData, error: fallbackError } = await supabaseService
+      .from('products')
+      .select('*, categories(id, name, slug)')
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (fallbackError) throw fallbackError;
+
+    return {
+      products: (fallbackData ?? []) as AdminProductRow[],
+      totalCount,
+      totalPages,
+      currentPage,
+    };
+  }
 
   if (error) throw error;
 
