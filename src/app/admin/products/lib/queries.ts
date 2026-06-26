@@ -1,5 +1,6 @@
 import { supabaseService } from '@/lib/supabase-service';
 import type { ProductCategoryLink } from '@/lib/product-category-utils';
+import { PRODUCT_SELECT, PRODUCT_SELECT_LEGACY, isProductRelationshipError } from '@/lib/product-select';
 import { isMissingSchemaError } from '@/lib/supabase-errors';
 import type { Category, Product } from '@/types';
 
@@ -50,9 +51,7 @@ export async function fetchPaginatedProducts(
 
   let dataQuery = supabaseService
     .from('products')
-    .select(
-      '*, categories(id, name, slug), product_categories(category_id, categories(id, name, slug))'
-    );
+    .select(PRODUCT_SELECT);
 
   if (filters.search) {
     dataQuery = dataQuery.ilike('name', `%${filters.search}%`);
@@ -62,10 +61,10 @@ export async function fetchPaginatedProducts(
     .order('created_at', { ascending: false })
     .range(from, to);
 
-  if (error && isMissingSchemaError(error)) {
+  if (error && (isMissingSchemaError(error) || isProductRelationshipError(error))) {
     const { data: fallbackData, error: fallbackError } = await supabaseService
       .from('products')
-      .select('*, categories(id, name, slug)')
+      .select(PRODUCT_SELECT_LEGACY)
       .order('created_at', { ascending: false })
       .range(from, to);
 

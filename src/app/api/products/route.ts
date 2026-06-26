@@ -1,13 +1,45 @@
 import { NextResponse } from 'next/server';
 
 import { isCategoryUuid, resolveCategorySlug } from '@/lib/category-resolve';
+import {
+  PRODUCT_SELECT_BY_CATEGORY,
+  PRODUCT_SELECT_LEGACY,
+  isProductRelationshipError,
+} from '@/lib/product-select';
 import { createPublicSupabase } from '@/lib/supabase-public';
 import { isMissingSchemaError } from '@/lib/supabase-errors';
 
 export const dynamic = 'force-dynamic';
 
-const PRODUCT_SELECT =
-  '*, categories(id, name, slug), product_categories(category_id, categories(id, name, slug))';
+function buildLegacyQuery(
+  supabase: ReturnType<typeof createPublicSupabase>,
+  options: {
+    categoryParam: string | null;
+    isUUID: boolean;
+    include_empty_stock: boolean;
+    search: string | null;
+  }
+) {
+  let query = supabase.from('products').select(PRODUCT_SELECT_LEGACY);
+
+  if (!options.include_empty_stock) {
+    query = query.gt('stock', 0);
+  }
+
+  if (options.categoryParam) {
+    if (options.isUUID) {
+      query = query.eq('category_id', options.categoryParam);
+    } else {
+      query = query.eq('categories.slug', options.categoryParam);
+    }
+  }
+
+  if (options.search) {
+    query = query.ilike('name', `%${options.search}%`);
+  }
+
+  return query.order('created_at', { ascending: false }).range(0, 49);
+}
 
 export async function GET(request: Request) {
   try {
@@ -32,20 +64,29 @@ export async function GET(request: Request) {
 
     const isUUID = categoryParam ? isCategoryUuid(categoryParam) : false;
 
-    let query = supabase.from('products').select(PRODUCT_SELECT);
+    // Sin filtro de categoría: consulta simple (catálogo general).
+    if (!categoryParam) {
+      const { data, error } = await buildLegacyQuery(supabase, {
+        categoryParam: null,
+        isUUID: false,
+        include_empty_stock,
+        search,
+      });
 
-    if (categoryParam) {
-      query = supabase
-        .from('products')
-        .select(
-          `${PRODUCT_SELECT}, product_categories!inner(category_id, categories!inner(id, name, slug))`
-        );
-
-      if (isUUID) {
-        query = query.eq('product_categories.category_id', categoryParam);
-      } else {
-        query = query.eq('product_categories.categories.slug', categoryParam);
+      if (error) {
+        console.error('[api/products] Supabase error:', error);
+        return NextResponse.json({ error: error.message }, { status: 400 });
       }
+
+      return NextResponse.json({ data: data ?? [] }, { status: 200 });
+    }
+
+    let query = supabase.from('products').select(PRODUCT_SELECT_BY_CATEGORY);
+
+    if (isUUID) {
+      query = query.eq('product_categories.category_id', categoryParam);
+    } else {
+      query = query.eq('product_categories.categories.slug', categoryParam);
     }
 
     if (!include_empty_stock) {
@@ -60,38 +101,26 @@ export async function GET(request: Request) {
       .order('created_at', { ascending: false })
       .range(0, 49);
 
-    if (error) {
-      if (
-        isMissingSchemaError(error) &&
-        categoryParam
-      ) {
-        let legacyQuery = supabase
-          .from('products')
-          .select('*, categories(id, name, slug)');
+    if (
+      error &&
+      (isMissingSchemaError(error) || isProductRelationshipError(error))
+    ) {
+      const { data: legacyProducts, error: legacyError } =
+        await buildLegacyQuery(supabase, {
+          categoryParam,
+          isUUID,
+          include_empty_stock,
+          search,
+        });
 
-        if (!include_empty_stock) {
-          legacyQuery = legacyQuery.gt('stock', 0);
-        }
-        if (isUUID) {
-          legacyQuery = legacyQuery.eq('category_id', categoryParam);
-        } else {
-          legacyQuery = legacyQuery.eq('categories.slug', categoryParam);
-        }
-        if (search) {
-          legacyQuery = legacyQuery.ilike('name', `%${search}%`);
-        }
-
-        const { data: legacyProducts, error: legacyError } = await legacyQuery
-          .order('created_at', { ascending: false })
-          .range(0, 49);
-
-        if (legacyError) {
-          return NextResponse.json({ error: legacyError.message }, { status: 400 });
-        }
-
-        return NextResponse.json({ data: legacyProducts ?? [] }, { status: 200 });
+      if (legacyError) {
+        return NextResponse.json({ error: legacyError.message }, { status: 400 });
       }
 
+      return NextResponse.json({ data: legacyProducts ?? [] }, { status: 200 });
+    }
+
+    if (error) {
       console.error('[api/products] Supabase error:', error);
       return NextResponse.json(
         { error: error.message, details: error.details, hint: error.hint },
